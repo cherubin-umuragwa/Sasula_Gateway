@@ -1,0 +1,9 @@
+[
+  {"type":"function","name":"getScore","stateMutability":"view","inputs":[{"name":"user","type":"address"}],"outputs":[{"type":"uint256"}]},
+  {"type":"function","name":"endorse","stateMutability":"nonpayable","inputs":[{"name":"target","type":"address"}],"outputs":[]},
+  {"type":"function","name":"unendorse","stateMutability":"nonpayable","inputs":[{"name":"target","type":"address"}],"outputs":[]},
+  {"type":"function","name":"fundPool","stateMutability":"nonpayable","inputs":[{"name":"amount","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"borrow","stateMutability":"nonpayable","inputs":[{"name":"amount","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"repay","stateMutability":"nonpayable","inputs":[{"name":"amount","type":"uint256"}],"outputs":[]}
+]
+}

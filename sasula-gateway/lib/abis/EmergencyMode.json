@@ -1,0 +1,6 @@
+[
+  {"type":"function","name":"setGlobalEmergency","stateMutability":"nonpayable","inputs":[{"name":"active","type":"bool"}],"outputs":[]},
+  {"type":"function","name":"setRegionEmergency","stateMutability":"nonpayable","inputs":[{"name":"region","type":"bytes32"},{"name":"active","type":"bool"}],"outputs":[]},
+  {"type":"function","name":"setAuthority","stateMutability":"nonpayable","inputs":[{"name":"authority","type":"address"},{"name":"allowed","type":"bool"}],"outputs":[]},
+  {"type":"function","name":"isEmergency","stateMutability":"view","inputs":[{"name":"region","type":"bytes32"}],"outputs":[{"type":"bool"}]}
+]
