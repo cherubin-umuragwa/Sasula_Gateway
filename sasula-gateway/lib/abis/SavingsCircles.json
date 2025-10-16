@@ -1,0 +1,6 @@
+[
+  {"type":"function","name":"createCircle","stateMutability":"nonpayable","inputs":[{"name":"token","type":"address"},{"name":"members","type":"address[]"},{"name":"contribution","type":"uint256"},{"name":"periodSeconds","type":"uint256"}],"outputs":[{"type":"uint256"}]},
+  {"type":"function","name":"deposit","stateMutability":"nonpayable","inputs":[{"name":"id","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"payout","stateMutability":"nonpayable","inputs":[{"name":"id","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"getCircle","stateMutability":"view","inputs":[{"name":"id","type":"uint256"}],"outputs":[{"type":"address"},{"type":"address"},{"type":"uint256"},{"type":"uint256"},{"type":"address[]"},{"type":"uint256"},{"type":"uint256"},{"type":"uint256"},{"type":"bool"}]}
+]
