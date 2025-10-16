@@ -3,6 +3,12 @@ import { useState } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import emAbi from "@/lib/abis/EmergencyMode.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+import dynamic from "next/dynamic";
+import "leaflet/dist/leaflet.css";
+const MapContainer = dynamic(() => import("react-leaflet").then(m => m.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import("react-leaflet").then(m => m.TileLayer), { ssr: false });
+const Marker = dynamic(() => import("react-leaflet").then(m => m.Marker), { ssr: false });
+const Popup = dynamic(() => import("react-leaflet").then(m => m.Popup), { ssr: false });
 
 export default function EmergencyPage() {
   const [globalOn, setGlobalOn] = useState(false);
@@ -56,6 +62,20 @@ export default function EmergencyPage() {
         </div>
         {hash && <div className="text-sm">Tx: {hash}</div>}
         {error && <div className="text-sm text-red-600">{error.message}</div>}
+      </div>
+      <div className="border rounded p-3 space-y-2">
+        <div className="font-medium">Aid Map (demo markers)</div>
+        <div className="h-[300px]">
+          <MapContainer center={[0.3476, 32.5825]} zoom={6} style={{ height: "100%", width: "100%" }}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={[0.3476, 32.5825]}>
+              <Popup>Kampala Aid Distribution Center</Popup>
+            </Marker>
+            <Marker position={[0.3136, 32.5811]}>
+              <Popup>Family relief pickup</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
       </div>
     </div>
   );

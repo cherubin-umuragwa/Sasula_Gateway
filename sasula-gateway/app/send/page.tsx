@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSimulateContract, useReadContract } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { parseEther, erc20Abi } from "viem";
 import routerAbi from "@/lib/abis/PaymentRouter.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+import { TOKENS } from "@/lib/tokenlist";
 
 export default function SendPage() {
   const { address } = useAccount();
@@ -66,7 +67,15 @@ export default function SendPage() {
           <option value="ERC20">ERC-20 (e.g., MiniToken/USDC)</option>
         </select>
         {token === "ERC20" && (
-          <input className="border rounded p-2" placeholder="Token address" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value)} />
+          <div className="grid gap-2">
+            <select className="border rounded p-2" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value as `0x${string}`)}>
+              <option value="">Select token</option>
+              {TOKENS.filter(t=> t.address !== "0x0000000000000000000000000000000000000000").map((t)=> (
+                <option key={t.symbol} value={t.address}>{t.symbol} - {t.name}</option>
+              ))}
+            </select>
+            <input className="border rounded p-2" placeholder="Or paste token address" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value)} />
+          </div>
         )}
         <input className="border rounded p-2" placeholder="Recipient 0x..." value={to} onChange={(e)=> setTo(e.target.value)} />
         <input className="border rounded p-2" placeholder="Amount" value={amount} onChange={(e)=> setAmount(e.target.value)} />

@@ -20,26 +20,32 @@ export default function VoicePage() {
   }
 
   useEffect(() => {
-    // Very simple command pattern: "send 0.01 to 0xabc... message hello"
-    const lower = transcript.toLowerCase();
-    if (lower.includes("send") && lower.includes("to") && lower.includes("message")) {
+    // Multilingual intent extraction
+    const t = transcript.trim();
+    if (!t) return;
+    const lower = t.toLowerCase();
+
+    // English: "send 0.01 to 0x... message hello"
+    const en = /send\s+([0-9.,]+)\s+(eth)?\s*to\s+(0x[a-f0-9]{40}).*?(message|note|msg)\s+(.+)$/i;
+    // Swahili: "tuma 0.01 kwa 0x... ujumbe jambo"
+    const sw = /tuma\s+([0-9.,]+)\s*(eth)?\s*kwa\s+(0x[a-f0-9]{40}).*?(ujumbe|message)\s+(.+)$/i;
+    // French: "envoyer 0,01 à 0x... message bonjour"
+    const fr = /envoyer\s+([0-9.,]+)\s*(eth)?\s*à\s+(0x[a-f0-9]{40}).*?(message|note)\s+(.+)$/i;
+
+    const m = lower.match(en) || lower.match(sw) || lower.match(fr);
+    if (m) {
       try {
-        const amountMatch = lower.match(/send\s+([0-9.]+)/);
-        const toMatch = lower.match(/to\s+(0x[a-f0-9]{40})/);
-        const msgMatch = lower.match(/message\s+(.+)$/);
-        if (amountMatch && toMatch && msgMatch) {
-          const amount = amountMatch[1];
-          const to = toMatch[1] as `0x${string}`;
-          const message = msgMatch[1];
-          writeContract({
-            address: CONTRACT_ADDRESSES.paymentRouter as `0x${string}`,
-            abi: routerAbi as any,
-            functionName: "payETH",
-            args: [to, message],
-            value: parseEther(amount),
-          });
-          resetTranscript();
-        }
+        const amountRaw = m[1].replace(",", ".");
+        const to = m[3] as `0x${string}`;
+        const message = m[5];
+        writeContract({
+          address: CONTRACT_ADDRESSES.paymentRouter as `0x${string}`,
+          abi: routerAbi as any,
+          functionName: "payETH",
+          args: [to, message],
+          value: parseEther(amountRaw),
+        });
+        resetTranscript();
       } catch {}
     }
   }, [transcript]);
