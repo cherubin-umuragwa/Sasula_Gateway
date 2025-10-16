@@ -1,0 +1,188 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/workspace/sasula-gateway/contracts/PaymentRouter.sol": {
+      "lastModificationDate": 1760656445232,
+      "contentHash": "ed62f24b5801b86569aa44d83498f353",
+      "sourceName": "contracts/PaymentRouter.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "IERC20",
+        "PaymentRouter"
+      ]
+    },
+    "/workspace/sasula-gateway/contracts/EmergencyMode.sol": {
+      "lastModificationDate": 1760656586609,
+      "contentHash": "d75b5e5fd615c27accc0149bad023d88",
+      "sourceName": "contracts/EmergencyMode.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "EmergencyMode"
+      ]
+    },
+    "/workspace/sasula-gateway/contracts/SavingsCircles.sol": {
+      "lastModificationDate": 1760656625393,
+      "contentHash": "e38c0b61d76754098a5debd63b89aafb",
+      "sourceName": "contracts/SavingsCircles.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "IERC20",
+        "SavingsCircles"
+      ]
+    },
+    "/workspace/sasula-gateway/contracts/SocialReputation.sol": {
+      "lastModificationDate": 1760656607497,
+      "contentHash": "10f2ac4da221fc6d083d5566021c2f8a",
+      "sourceName": "contracts/SocialReputation.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "IERC20",
+        "SocialReputation"
+      ]
+    },
+    "/workspace/sasula-gateway/contracts/MiniToken.sol": {
+      "lastModificationDate": 1760656859301,
+      "contentHash": "dea59aca5c85cfa78f6552863e7ebc4a",
+      "sourceName": "contracts/MiniToken.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "MiniToken"
+      ]
+    }
+  }
+}
