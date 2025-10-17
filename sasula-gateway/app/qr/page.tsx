@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import QRCode from "qrcode";
-import QrScanner from "@yudiel/react-qr-scanner";
+import dynamic from "next/dynamic";
+const QrReader = dynamic(() => import("react-qr-reader").then(m => m.QrReader), { ssr: false });
 
 export default function QRPage() {
   const [address, setAddress] = useState("");
@@ -27,7 +28,20 @@ export default function QRPage() {
       </div>
       <div className="border rounded p-3">
         <div className="font-medium mb-2">Scan QR</div>
-        <QrScanner onDecode={(result) => alert(result)} onError={(e)=> console.error(e)} />
+        <QrReader
+          constraints={{ facingMode: "environment" }}
+          onResult={(result, error) => {
+            if (!!result) {
+              try {
+                const json = JSON.parse(result.getText());
+                alert(`Scanned:\nAddress: ${json.address}\nAmount: ${json.amount}\nMessage: ${json.message}`);
+              } catch (e) {
+                alert(`Scanned text: ${result.getText()}`);
+              }
+            }
+          }}
+          containerStyle={{ width: "100%" }}
+        />
       </div>
     </div>
   );
