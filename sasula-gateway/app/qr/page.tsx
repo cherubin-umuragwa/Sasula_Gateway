@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import QRCode from "qrcode";
-import { QrScanner } from "@yudiel/react-qr-scanner";
+import QrScanner from "@yudiel/react-qr-scanner";
 
 export default function QRPage() {
   const [address, setAddress] = useState("");
