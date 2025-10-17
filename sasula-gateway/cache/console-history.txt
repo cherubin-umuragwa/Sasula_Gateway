@@ -1,0 +1,4 @@
+(await sc.getAddress())
+await sc.waitForDeployment();
+const sc = await SavingsCircles.deploy();
+const SavingsCircles = await ethers.getContractFactory("SavingsCircles");
