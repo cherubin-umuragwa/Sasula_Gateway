@@ -38,7 +38,7 @@ export default function Dashboard() {
         </div>
         <div className="card p-5 space-y-2">
           <div className="text-sm opacity-70">Balance</div>
-          <div className="text-3xl font-extrabold">{balance ? `${balance.formatted} ${balance.symbol}` : "-"}</div>
+          <div className="text-3xl font-extrabold">{balance ? `${Number(balance.formatted).toLocaleString(undefined,{ maximumFractionDigits: 6 })} ${balance.symbol}` : "-"}</div>
           <div className="text-xs opacity-70">On Base Sepolia</div>
         </div>
         <div className="card p-5 space-y-2">
@@ -48,12 +48,12 @@ export default function Dashboard() {
         </div>
         <div className="card p-5 space-y-2">
           <div className="text-sm opacity-70">Max Micro‑loan Limit</div>
-          <div className="text-2xl font-extrabold">{limit ? String(limit) : "0"}</div>
+          <div className="text-2xl font-extrabold">{limit ? Number(limit).toLocaleString() : "0"}</div>
           <div className="text-xs opacity-70">Based on your current score and pool size.</div>
         </div>
         <div className="card p-5 space-y-2 sm:col-span-2">
           <div className="text-sm opacity-70">Your Pool Stake Value</div>
-          <div className="text-2xl font-extrabold">{stakeValue ? String(stakeValue) : "0"}</div>
+          <div className="text-2xl font-extrabold">{stakeValue ? Number(stakeValue).toLocaleString() : "0"}</div>
           <div className="text-xs opacity-70">Withdraw anytime, full or partial.</div>
         </div>
       </div>

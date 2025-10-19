@@ -3,6 +3,7 @@ import { useState } from "react";
 import QRCode from "qrcode";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { useEffect, useRef, useState } from "react";
+import { TOKENS } from "@/lib/tokenlist";
 import { useRouter } from "next/navigation";
 
 export default function QRPage() {
@@ -77,6 +78,12 @@ export default function QRPage() {
         <input className="border rounded p-2" placeholder="Recipient 0x..." value={address} onChange={(e)=> setAddress(e.target.value)} />
         <input className="border rounded p-2" placeholder="Amount (ETH)" value={amount} onChange={(e)=> setAmount(e.target.value)} />
         <input className="border rounded p-2" placeholder="Message" value={message} onChange={(e)=> setMessage(e.target.value)} />
+        <select className="border rounded p-2" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value)}>
+          <option value="">(Optional) ERC‑20 token from list...</option>
+          {TOKENS.filter(t=> t.address !== "0x0000000000000000000000000000000000000000").map(t=> (
+            <option key={t.symbol} value={t.address}>{t.symbol} - {t.name}</option>
+          ))}
+        </select>
         <button onClick={generate} className="rounded bg-blue-600 text-white px-3 py-2">Generate QR</button>
         {qr && <img src={qr} className="w-48 h-48" alt="qr" />}
       </div>
