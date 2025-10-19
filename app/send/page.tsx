@@ -5,7 +5,9 @@ import { parseEther, erc20Abi } from "viem";
 import routerAbi from "@/lib/abis/PaymentRouter.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { TOKENS } from "@/lib/tokenlist";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCopy, faQrcode, faUsers, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 function TokenSelector({ 
   token, 
@@ -222,6 +224,7 @@ function TransactionSummary({
 export default function SendPage() {
   const { address } = useAccount();
   const params = useSearchParams();
+  const router = useRouter();
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
@@ -377,39 +380,73 @@ export default function SendPage() {
           <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105">
+              <button 
+                onClick={() => router.push('/qr')}
+                className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105"
+              >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">📱</span>
+                  <FontAwesomeIcon icon={faQrcode} className="text-xl text-white/70" />
                   <div>
                     <div className="text-white font-medium">Scan QR Code</div>
                     <div className="text-white/60 text-sm">Use camera to scan payment QR</div>
                   </div>
                 </div>
               </button>
-              <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105">
+              
+              <button 
+                onClick={async () => {
+                  try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && text.startsWith('0x') && text.length === 42) {
+                      setTo(text);
+                    } else {
+                      alert('Invalid address in clipboard');
+                    }
+                  } catch (err) {
+                    alert('Failed to read clipboard');
+                  }
+                }}
+                className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105"
+              >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">📋</span>
+                  <FontAwesomeIcon icon={faCopy} className="text-xl text-white/70" />
                   <div>
                     <div className="text-white font-medium">Paste from Clipboard</div>
                     <div className="text-white/60 text-sm">Paste address from clipboard</div>
                   </div>
                 </div>
               </button>
-              <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">👥</span>
-                  <div>
-                    <div className="text-white font-medium">Recent Contacts</div>
-                    <div className="text-white/60 text-sm">Send to recent recipients</div>
-                  </div>
-                </div>
-              </button>
+              
+              <div className="space-y-2">
+                <div className="text-white font-medium text-sm">Recent Contacts</div>
+                {[
+                  "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
+                  "0x8ba1f109551bD432803012645Hac136c",
+                  "0x1234567890123456789012345678901234567890"
+                ].map((contact, index) => (
+                  <button 
+                    key={index}
+                    onClick={() => setTo(contact)}
+                    className="w-full p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FontAwesomeIcon icon={faUsers} className="text-sm text-white/70" />
+                      <div>
+                        <div className="text-white text-sm font-medium">
+                          {contact.slice(0, 6)}...{contact.slice(-4)}
+                        </div>
+                        <div className="text-white/60 text-xs">Recent recipient</div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Tips */}
           <div className="card p-6 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 animate-fadeInUp" style={{ animationDelay: '300ms' }}>
-            <h3 className="text-lg font-semibold text-white mb-4">💡 Tips</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Tips</h3>
             <div className="space-y-2 text-sm text-white/70">
               <div>• Double-check the recipient address</div>
               <div>• Add a message for social payments</div>

@@ -4,6 +4,8 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import repAbi from "@/lib/abis/SocialReputation.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { erc20Abi, parseEther, parseUnits, MaxUint256 } from "viem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar, faThumbsUp, faThumbsDown, faUserCheck, faUniversity, faCoins, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
 function ScoreCard({ score, delay = 0 }: { score: string; delay?: number }) {
   const scoreNum = parseInt(score) || 0;
@@ -15,7 +17,9 @@ function ScoreCard({ score, delay = 0 }: { score: string; delay?: number }) {
       className={`card p-8 text-center bg-gradient-to-br ${color} bg-opacity-20 border border-white/10 animate-fadeInUp`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="text-6xl mb-4">⭐</div>
+      <div className="text-6xl mb-4">
+        <FontAwesomeIcon icon={faStar} className="text-6xl text-yellow-400" />
+      </div>
       <div className="text-4xl sm:text-5xl font-bold text-white mb-2">{score}</div>
       <div className="text-lg text-white/80 mb-2">Reputation Score</div>
       <div className="text-sm text-white/60">{level} Level</div>
@@ -48,7 +52,7 @@ function EndorseSection({
     <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
-          <span className="text-xl">👍</span>
+          <FontAwesomeIcon icon={faThumbsUp} className="text-xl text-white" />
         </div>
         <div>
           <h3 className="text-lg font-semibold text-white">Endorse Users</h3>
@@ -68,42 +72,45 @@ function EndorseSection({
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button 
-            disabled={isPending || isLoading} 
-            onClick={() => writeContract({ 
-              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
-              abi: repAbi as any, 
-              functionName: "endorse", 
-              args: [(target || address) as `0x${string}`] 
-            })} 
-            className="btn btn-primary py-3"
-          >
-            👍 Endorse
-          </button>
-          <button 
-            disabled={isPending || isLoading} 
-            onClick={() => writeContract({ 
-              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
-              abi: repAbi as any, 
-              functionName: "unendorse", 
-              args: [(target || address) as `0x${string}`] 
-            })} 
-            className="btn btn-outline py-3"
-          >
-            👎 Unendorse
-          </button>
-          <button 
-            disabled={isPending || isLoading} 
-            onClick={() => writeContract({ 
-              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
-              abi: repAbi as any, 
-              functionName: "selfEndorse", 
-              args: [] 
-            })} 
-            className="btn btn-accent py-3"
-          >
-            🎯 Self-Endorse
-          </button>
+            <button 
+              disabled={isPending || isLoading} 
+              onClick={() => writeContract({ 
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+                abi: repAbi as any, 
+                functionName: "endorse", 
+                args: [(target || address) as `0x${string}`] 
+              })} 
+              className="btn btn-primary py-3"
+            >
+              <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
+              Endorse
+            </button>
+            <button 
+              disabled={isPending || isLoading} 
+              onClick={() => writeContract({ 
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+                abi: repAbi as any, 
+                functionName: "unendorse", 
+                args: [(target || address) as `0x${string}`] 
+              })} 
+              className="btn btn-outline py-3"
+            >
+              <FontAwesomeIcon icon={faThumbsDown} className="mr-2" />
+              Unendorse
+            </button>
+            <button 
+              disabled={isPending || isLoading} 
+              onClick={() => writeContract({ 
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+                abi: repAbi as any, 
+                functionName: "selfEndorse", 
+                args: [] 
+              })} 
+              className="btn btn-accent py-3"
+            >
+              <FontAwesomeIcon icon={faUserCheck} className="mr-2" />
+              Self-Endorse
+            </button>
         </div>
       </div>
     </div>
@@ -147,7 +154,7 @@ function PoolSection({
     <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '400ms' }}>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-          <span className="text-xl">🏦</span>
+          <FontAwesomeIcon icon={faUniversity} className="text-xl text-white" />
         </div>
         <div>
           <h3 className="text-lg font-semibold text-white">Micro-Loans & Pool</h3>
@@ -250,7 +257,8 @@ function PoolSection({
               })} 
               className="btn btn-primary py-3"
             >
-              💰 Borrow
+              <FontAwesomeIcon icon={faCoins} className="mr-2" />
+              Borrow
             </button>
             <button 
               disabled={isPending || isLoading} 
@@ -262,7 +270,8 @@ function PoolSection({
               })} 
               className="btn btn-secondary py-3"
             >
-              💳 Repay
+              <FontAwesomeIcon icon={faArrowUp} className="mr-2" />
+              Repay
             </button>
           </div>
         </div>
