@@ -25,6 +25,8 @@ export default function SendPage() {
     if (qpAmount) setAmount(qpAmount);
     if (qpMessage) setMessage(qpMessage);
     if (qpToken === "ETH" || qpToken === "ERC20") setToken(qpToken);
+    const qpTokenAddress = params.get("tokenAddress");
+    if (qpTokenAddress) setTokenAddress(qpTokenAddress as `0x${string}`);
   }, [params]);
 
   const { writeContract, data: hash, isPending, error } = useWriteContract();
