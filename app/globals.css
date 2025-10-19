@@ -68,18 +68,15 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.glass-card {
+/* Modern card styles */
+.card {
+  @apply rounded-2xl transition-all duration-300;
   background: rgba(30, 30, 46, 0.6);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
     0 4px 24px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-/* Modern card styles */
-.card {
-  @apply glass-card rounded-2xl transition-all duration-300;
   transform: translateY(0);
 }
 
