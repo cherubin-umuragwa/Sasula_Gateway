@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { WagmiProvider, http } from "wagmi";
 import { baseSepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   getDefaultConfig,
   RainbowKitProvider,
