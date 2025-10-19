@@ -29,15 +29,24 @@ contract SocialReputation {
 
     mapping(address => Metrics) private userMetrics;
 
-    // Simple loan book
-    mapping(address => uint256) public outstandingDebt;
-    uint256 public totalPool;
+    // Pool accounting using shares (proportional claims)
+    uint256 public totalPool; // total token balance managed by the pool
+    uint256 public totalShares; // sum of all userShares
+    mapping(address => uint256) public userShares; // depositor shares
+
+    // Simple loan book (one loan at a time per user for demo)
+    mapping(address => uint256) public outstandingDebt; // principal owed
+    uint256 public interestBps = 200; // 2% flat interest per loan (for demo)
+
+    // Reputation boosts for funding
+    mapping(address => uint256) public fundingPoints1e18;
 
     event AuthorizedCaller(address indexed caller, bool allowed);
     event PaymentReported(address indexed from, address indexed to, address token, uint256 amount);
     event Endorsed(address indexed endorser, address indexed target);
     event Unendorsed(address indexed endorser, address indexed target);
-    event PoolFunded(address indexed from, uint256 amount);
+    event PoolFunded(address indexed from, uint256 amount, uint256 sharesMinted);
+    event PoolWithdrawn(address indexed to, uint256 amount, uint256 sharesBurned);
     event Borrowed(address indexed borrower, uint256 amount);
     event Repaid(address indexed borrower, uint256 amount);
 
@@ -96,6 +105,8 @@ contract SocialReputation {
         // Simple weighted scoring: counts + endorsements + volume factor
         // Weights chosen for demo purposes
         uint256 score = m.sentCount * 2 + m.receivedCount * 1 + m.endorsements * 10 + m.volume / 1e20; // volume dampened
+        // Add funding contribution as reputation (dampened)
+        score += fundingPoints1e18[user] / 1e20; // smaller weight
         return score;
     }
 
@@ -104,8 +115,49 @@ contract SocialReputation {
         require(amount > 0, "amount=0");
         bool ok = loanToken.transferFrom(msg.sender, address(this), amount);
         require(ok, "transferFrom fail");
+        uint256 shares;
+        if (totalShares == 0 || totalPool == 0) {
+            shares = amount; // 1:1 initial pricing
+        } else {
+            shares = (amount * totalShares) / totalPool;
+        }
+        require(shares > 0, "shares=0");
         totalPool += amount;
-        emit PoolFunded(msg.sender, amount);
+        totalShares += shares;
+        userShares[msg.sender] += shares;
+        // add reputation points (normalize to 1e18 basis)
+        fundingPoints1e18[msg.sender] += amount * 1e18;
+        emit PoolFunded(msg.sender, amount, shares);
+    }
+
+    function getUserStakeValue(address user) public view returns (uint256) {
+        if (totalShares == 0) return 0;
+        return (userShares[user] * totalPool) / totalShares;
+    }
+
+    // Withdraw exact token amount (partial allowed)
+    function withdrawAmount(uint256 amount) external {
+        require(amount > 0, "amount=0");
+        require(totalPool > 0 && totalShares > 0, "empty");
+        uint256 shares = (amount * totalShares) / totalPool;
+        require(shares > 0 && userShares[msg.sender] >= shares, "shares");
+        userShares[msg.sender] -= shares;
+        totalShares -= shares;
+        totalPool -= amount;
+        require(loanToken.transfer(msg.sender, amount), "transfer fail");
+        emit PoolWithdrawn(msg.sender, amount, shares);
+    }
+
+    // Withdraw by shares
+    function withdrawShares(uint256 shares) external {
+        require(shares > 0 && userShares[msg.sender] >= shares, "shares");
+        require(totalShares > 0, "no shares");
+        uint256 amount = (shares * totalPool) / totalShares;
+        userShares[msg.sender] -= shares;
+        totalShares -= shares;
+        totalPool -= amount;
+        require(loanToken.transfer(msg.sender, amount), "transfer fail");
+        emit PoolWithdrawn(msg.sender, amount, shares);
     }
 
     function maxBorrowable(address user) public view returns (uint256) {
@@ -120,7 +172,7 @@ contract SocialReputation {
         require(outstandingDebt[msg.sender] == 0, "Debt exists");
         uint256 maxAmt = maxBorrowable(msg.sender);
         require(amount > 0 && amount <= maxAmt, "exceeds limit");
-        outstandingDebt[msg.sender] = amount; // no interest for demo
+        outstandingDebt[msg.sender] = amount; // principal
         totalPool -= amount;
         require(loanToken.transfer(msg.sender, amount), "transfer fail");
         emit Borrowed(msg.sender, amount);
@@ -130,11 +182,22 @@ contract SocialReputation {
         require(amount > 0, "amount=0");
         uint256 debt = outstandingDebt[msg.sender];
         require(debt > 0, "no debt");
-        require(amount <= debt, "too much");
+        uint256 due = debt + ((debt * interestBps) / 10000);
+        require(amount >= due, "insufficient repay");
         bool ok = loanToken.transferFrom(msg.sender, address(this), amount);
         require(ok, "transferFrom fail");
-        outstandingDebt[msg.sender] = debt - amount;
-        totalPool += amount;
+        outstandingDebt[msg.sender] = 0;
+        totalPool += amount; // interest increases pool value for all depositors
         emit Repaid(msg.sender, amount);
+    }
+
+    // --- Endorsements ---
+    // Already one-per-endorser via hasEndorsed; allow self-endorse only once
+    function selfEndorse() external {
+        Metrics storage m = userMetrics[msg.sender];
+        require(!m.hasEndorsed[msg.sender], "Already self-endorsed");
+        m.hasEndorsed[msg.sender] = true;
+        unchecked { m.endorsements += 1; }
+        emit Endorsed(msg.sender, msg.sender);
     }
 }

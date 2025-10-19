@@ -17,6 +17,13 @@ export default function ReputationPage() {
     args: [target || address || "0x0000000000000000000000000000000000000000"],
   });
 
+  const { data: stakeValue } = useReadContract({
+    address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
+    abi: repAbi as any,
+    functionName: "getUserStakeValue",
+    args: [address || "0x0000000000000000000000000000000000000000"],
+  });
+
   const { writeContract, data: hash, isPending, error } = useWriteContract();
   const { isLoading } = useWaitForTransactionReceipt({ hash });
 
@@ -30,22 +37,28 @@ export default function ReputationPage() {
         <div className="text-3xl font-extrabold">{score?.toString?.() || "0"}</div>
       </div>
 
-      <div className="rounded-xl border p-4 bg-white/60 dark:bg黑/40 backdrop-blur space-y-3">
+      <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
         <div className="font-semibold">Endorse a user</div>
         <p className="text-sm opacity-80">Endorse trusted contacts to boost their score. You can withdraw your endorsement later.</p>
         <input className="border rounded p-2 w-full" placeholder="Target 0x... (leave empty for self)" value={target} onChange={(e)=> setTarget(e.target.value)} />
         <div className="flex gap-2">
           <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "endorse", args: [(target || address) as `0x${string}`] })} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Endorse</button>
           <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "unendorse", args: [(target || address) as `0x${string}`] })} className="rounded-lg bg-gray-700 text-white px-4 py-2 hover:bg-gray-600 transition">Unendorse</button>
+          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "selfEndorse", args: [] })} className="rounded-lg bg-purple-600 text-white px-4 py-2 hover:bg-purple-500 transition">Self‑endorse (once)</button>
         </div>
       </div>
 
       <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
         <div className="font-semibold">Micro‑loans</div>
-        <p className="text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay. Demo uses MiniToken.</p>
+        <p className="text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay with a small interest. Your stake grows with pool gains. Demo uses MiniToken.</p>
         <div className="grid gap-2">
           <input className="border rounded p-2 w-full" placeholder="Fund pool amount" value={fund} onChange={(e)=> setFund(e.target.value)} />
           <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "fundPool", args: [parseEther(fund||"0")] })} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Fund Pool</button>
+          <div className="text-sm opacity-80">Your current stake value (withdrawable): {stakeValue ? String(stakeValue) : "0"}</div>
+          <div className="flex gap-2">
+            <input className="border rounded p-2 w-full" placeholder="Withdraw amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
+            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "withdrawAmount", args: [parseEther(borrow||"0")] })} className="rounded-lg bg-gray-700 text-white px-4 py-2 hover:bg-gray-600 transition">Withdraw</button>
+          </div>
           <input className="border rounded p-2 w-full" placeholder="Borrow amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
           <div className="flex gap-2">
             <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "borrow", args: [parseEther(borrow||"0")] })} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Borrow</button>

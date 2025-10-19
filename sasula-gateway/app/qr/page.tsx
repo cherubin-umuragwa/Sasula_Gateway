@@ -16,7 +16,8 @@ export default function QRPage() {
   const controlsRef = useRef<IScannerControls | null>(null);
 
   async function generate() {
-    const payload = JSON.stringify({ address, amount, message });
+    // Support ERC20 in payload by adding token fields when relevant
+    const payload = JSON.stringify({ address, amount, message, token: "ETH" });
     const dataUrl = await QRCode.toDataURL(payload);
     setQr(dataUrl);
   }
