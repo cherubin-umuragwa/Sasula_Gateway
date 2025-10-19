@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import repAbi from "@/lib/abis/SocialReputation.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
-import { parseEther } from "viem";
+import { erc20Abi, parseEther, parseUnits, MaxUint256 } from "viem";
 
 export default function ReputationPage() {
   const { address } = useAccount();
@@ -24,8 +24,57 @@ export default function ReputationPage() {
     args: [address || "0x0000000000000000000000000000000000000000"],
   });
 
+  // Read loan token address from the contract
+  const { data: loanToken } = useReadContract({
+    address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
+    abi: repAbi as any,
+    functionName: "loanToken",
+    args: [],
+  });
+
+  // Read decimals of loan token (default 18 if not available)
+  const { data: tokenDecimals } = useReadContract({
+    address: (loanToken as `0x${string}`) || undefined,
+    abi: erc20Abi,
+    functionName: "decimals",
+    args: [],
+    query: { enabled: !!loanToken },
+  });
+
+  // Read allowance for SocialReputation to spend user's token
+  const { data: allowance } = useReadContract({
+    address: (loanToken as `0x${string}`) || undefined,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [
+      (address as `0x${string}`) || "0x0000000000000000000000000000000000000000",
+      CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
+    ],
+    query: { enabled: !!address && !!loanToken },
+  });
+
   const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { writeContract: writeApprove, data: approveHash, isPending: isApproving } = useWriteContract();
   const { isLoading } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isApproveMining } = useWaitForTransactionReceipt({ hash: approveHash });
+
+  const decimals = useMemo(() => (typeof tokenDecimals === "number" ? tokenDecimals : 18), [tokenDecimals]);
+  const fundUnits = useMemo(() => {
+    try {
+      if (!fund) return 0n;
+      return parseUnits(fund, decimals);
+    } catch {
+      return 0n;
+    }
+  }, [fund, decimals]);
+  const needsApprove = useMemo(() => {
+    if (!allowance || !fundUnits) return false;
+    try {
+      return (allowance as bigint) < fundUnits;
+    } catch {
+      return false;
+    }
+  }, [allowance, fundUnits]);
 
   return (
     <div className="p-4 space-y-6 max-w-2xl mx-auto">
@@ -52,18 +101,34 @@ export default function ReputationPage() {
         <div className="font-semibold">Micro‑loans</div>
         <p className="text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay with a small interest. Your stake grows with pool gains. Demo uses MiniToken.</p>
         <div className="grid gap-2">
-          <input className="border rounded p-2 w-full" placeholder="Fund pool amount" value={fund} onChange={(e)=> setFund(e.target.value)} />
-          <button
-            disabled={isPending||isLoading || !fund || Number(fund) <= 0}
-            onClick={()=> writeContract({
-              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
-              abi: repAbi as any,
-              functionName: "fundPool",
-              args: [parseEther(fund||"0")] })}
-            className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition disabled:opacity-50"
-          >
-            {isPending||isLoading ? "Funding..." : "Fund Pool"}
-          </button>
+          <input className="border rounded p-2 w-full" placeholder={`Fund pool amount (${decimals} decimals)`} value={fund} onChange={(e)=> setFund(e.target.value)} />
+
+          {needsApprove ? (
+            <button
+              disabled={isApproving||isApproveMining || !fund || Number(fund) <= 0 || !loanToken}
+              onClick={()=> writeApprove({
+                address: loanToken as `0x${string}`,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [CONTRACT_ADDRESSES.socialReputation as `0x${string}`, fundUnits],
+              })}
+              className="rounded-lg bg-purple-600 text-white px-4 py-2 hover:bg-purple-500 transition disabled:opacity-50"
+            >
+              {isApproving||isApproveMining ? "Approving..." : "Approve token"}
+            </button>
+          ) : (
+            <button
+              disabled={isPending||isLoading || !fund || Number(fund) <= 0}
+              onClick={()=> writeContract({
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
+                abi: repAbi as any,
+                functionName: "fundPool",
+                args: [fundUnits] })}
+              className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition disabled:opacity-50"
+            >
+              {isPending||isLoading ? "Funding..." : "Fund Pool"}
+            </button>
+          )}
           <div className="text-sm opacity-80">Your current stake value (withdrawable): {stakeValue ? String(stakeValue) : "0"}</div>
           <div className="flex gap-2">
             <input className="border rounded p-2 w-full" placeholder="Withdraw amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
