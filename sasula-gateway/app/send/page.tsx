@@ -1,18 +1,31 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { parseEther, erc20Abi } from "viem";
 import routerAbi from "@/lib/abis/PaymentRouter.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { TOKENS } from "@/lib/tokenlist";
+import { useSearchParams } from "next/navigation";
 
 export default function SendPage() {
   const { address } = useAccount();
+  const params = useSearchParams();
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [token, setToken] = useState<"ETH" | "ERC20">("ETH");
   const [tokenAddress, setTokenAddress] = useState(CONTRACT_ADDRESSES.miniToken);
+
+  useEffect(() => {
+    const qpTo = params.get("to");
+    const qpAmount = params.get("amount");
+    const qpMessage = params.get("message");
+    const qpToken = params.get("token");
+    if (qpTo) setTo(qpTo);
+    if (qpAmount) setAmount(qpAmount);
+    if (qpMessage) setMessage(qpMessage);
+    if (qpToken === "ETH" || qpToken === "ERC20") setToken(qpToken);
+  }, [params]);
 
   const { writeContract, data: hash, isPending, error } = useWriteContract();
   const { isLoading: isMining, isSuccess } = useWaitForTransactionReceipt({ hash });
