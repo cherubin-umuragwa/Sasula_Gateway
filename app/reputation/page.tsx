@@ -5,11 +5,304 @@ import repAbi from "@/lib/abis/SocialReputation.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { erc20Abi, parseEther, parseUnits, MaxUint256 } from "viem";
 
+function ScoreCard({ score, delay = 0 }: { score: string; delay?: number }) {
+  const scoreNum = parseInt(score) || 0;
+  const level = scoreNum > 1000 ? "Expert" : scoreNum > 500 ? "Advanced" : scoreNum > 100 ? "Intermediate" : "Beginner";
+  const color = scoreNum > 1000 ? "from-purple-500 to-pink-600" : scoreNum > 500 ? "from-blue-500 to-cyan-600" : scoreNum > 100 ? "from-green-500 to-emerald-600" : "from-gray-500 to-slate-600";
+
+  return (
+    <div 
+      className={`card p-8 text-center bg-gradient-to-br ${color} bg-opacity-20 border border-white/10 animate-fadeInUp`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="text-6xl mb-4">⭐</div>
+      <div className="text-4xl sm:text-5xl font-bold text-white mb-2">{score}</div>
+      <div className="text-lg text-white/80 mb-2">Reputation Score</div>
+      <div className="text-sm text-white/60">{level} Level</div>
+      <div className="mt-4 w-full bg-white/20 rounded-full h-2">
+        <div 
+          className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-1000"
+          style={{ width: `${Math.min((scoreNum / 1000) * 100, 100)}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+}
+
+function EndorseSection({ 
+  target, 
+  setTarget, 
+  address, 
+  isPending, 
+  isLoading, 
+  writeContract 
+}: { 
+  target: string; 
+  setTarget: (target: string) => void;
+  address: string | undefined;
+  isPending: boolean;
+  isLoading: boolean;
+  writeContract: any;
+}) {
+  return (
+    <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+          <span className="text-xl">👍</span>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">Endorse Users</h3>
+          <p className="text-white/60 text-sm">Boost reputation scores in the community</p>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-white/80 mb-2">Target Address</label>
+          <input 
+            className="input w-full font-mono" 
+            placeholder="0x... (leave empty for self-endorsement)" 
+            value={target} 
+            onChange={(e) => setTarget(e.target.value)} 
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button 
+            disabled={isPending || isLoading} 
+            onClick={() => writeContract({ 
+              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+              abi: repAbi as any, 
+              functionName: "endorse", 
+              args: [(target || address) as `0x${string}`] 
+            })} 
+            className="btn btn-primary py-3"
+          >
+            👍 Endorse
+          </button>
+          <button 
+            disabled={isPending || isLoading} 
+            onClick={() => writeContract({ 
+              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+              abi: repAbi as any, 
+              functionName: "unendorse", 
+              args: [(target || address) as `0x${string}`] 
+            })} 
+            className="btn btn-outline py-3"
+          >
+            👎 Unendorse
+          </button>
+          <button 
+            disabled={isPending || isLoading} 
+            onClick={() => writeContract({ 
+              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+              abi: repAbi as any, 
+              functionName: "selfEndorse", 
+              args: [] 
+            })} 
+            className="btn btn-accent py-3"
+          >
+            🎯 Self-Endorse
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PoolSection({ 
+  fund, 
+  setFund, 
+  borrow, 
+  setBorrow, 
+  decimals, 
+  fundUnits, 
+  needsApprove, 
+  isApproving, 
+  isApproveMining, 
+  isPending, 
+  isLoading, 
+  loanToken, 
+  stakeValue, 
+  writeContract, 
+  writeApprove 
+}: {
+  fund: string;
+  setFund: (fund: string) => void;
+  borrow: string;
+  setBorrow: (borrow: string) => void;
+  decimals: number;
+  fundUnits: bigint;
+  needsApprove: boolean;
+  isApproving: boolean;
+  isApproveMining: boolean;
+  isPending: boolean;
+  isLoading: boolean;
+  loanToken: any;
+  stakeValue: any;
+  writeContract: any;
+  writeApprove: any;
+}) {
+  return (
+    <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '400ms' }}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+          <span className="text-xl">🏦</span>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">Micro-Loans & Pool</h3>
+          <p className="text-white/60 text-sm">Fund the community pool and access loans</p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* Funding Section */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">Fund Pool Amount</label>
+            <input 
+              className="input w-full" 
+              placeholder={`Amount (${decimals} decimals)`} 
+              value={fund} 
+              onChange={(e) => setFund(e.target.value)} 
+            />
+          </div>
+
+          {needsApprove ? (
+            <button
+              disabled={isApproving || isApproveMining || !fund || Number(fund) <= 0 || !loanToken}
+              onClick={() => writeApprove({
+                address: loanToken as `0x${string}`,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [CONTRACT_ADDRESSES.socialReputation as `0x${string}`, fundUnits],
+              })}
+              className="btn btn-accent w-full py-3"
+            >
+              {isApproving || isApproveMining ? "Approving..." : "Approve Token"}
+            </button>
+          ) : (
+            <button
+              disabled={isPending || isLoading || !fund || Number(fund) <= 0}
+              onClick={() => writeContract({
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
+                abi: repAbi as any,
+                functionName: "fundPool",
+                args: [fundUnits] 
+              })}
+              className="btn btn-primary w-full py-3"
+            >
+              {isPending || isLoading ? "Funding..." : "Fund Pool"}
+            </button>
+          )}
+        </div>
+
+        {/* Stake Value */}
+        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="flex justify-between items-center">
+            <span className="text-white/70">Your Stake Value:</span>
+            <span className="text-white font-semibold">{stakeValue ? String(stakeValue) : "0"}</span>
+          </div>
+        </div>
+
+        {/* Withdraw Section */}
+        <div className="space-y-4">
+          <h4 className="text-white font-medium">Withdraw from Pool</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input 
+              className="input" 
+              placeholder="Withdraw amount" 
+              value={borrow} 
+              onChange={(e) => setBorrow(e.target.value)} 
+            />
+            <button 
+              disabled={isPending || isLoading} 
+              onClick={() => writeContract({ 
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+                abi: repAbi as any, 
+                functionName: "withdrawAmount", 
+                args: [BigInt(Math.floor(Number(borrow || "0") * Math.pow(10, decimals)))] 
+              })} 
+              className="btn btn-outline py-3"
+            >
+              Withdraw
+            </button>
+          </div>
+        </div>
+
+        {/* Borrow/Repay Section */}
+        <div className="space-y-4">
+          <h4 className="text-white font-medium">Borrow & Repay</h4>
+          <input 
+            className="input w-full" 
+            placeholder="Borrow amount" 
+            value={borrow} 
+            onChange={(e) => setBorrow(e.target.value)} 
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button 
+              disabled={isPending || isLoading} 
+              onClick={() => writeContract({ 
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+                abi: repAbi as any, 
+                functionName: "borrow", 
+                args: [BigInt(Math.floor(Number(borrow || "0") * Math.pow(10, decimals)))] 
+              })} 
+              className="btn btn-primary py-3"
+            >
+              💰 Borrow
+            </button>
+            <button 
+              disabled={isPending || isLoading} 
+              onClick={() => writeContract({ 
+                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, 
+                abi: repAbi as any, 
+                functionName: "repay", 
+                args: [BigInt(Math.floor(Number(borrow || "0") * Math.pow(10, decimals)))] 
+              })} 
+              className="btn btn-secondary py-3"
+            >
+              💳 Repay
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReputationInfo() {
+  return (
+    <div className="card p-6 bg-gradient-to-br from-purple-500/10 to-pink-600/10 border border-purple-500/20 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
+      <h3 className="text-lg font-semibold text-white mb-4">📚 How Reputation Works</h3>
+      <div className="space-y-3 text-sm text-white/70">
+        <div className="flex items-start gap-3">
+          <span className="text-green-400">•</span>
+          <span>Send and receive payments to increase your score</span>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="text-blue-400">•</span>
+          <span>Get endorsed by trusted community members</span>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="text-purple-400">•</span>
+          <span>Fund the community pool for reputation boost</span>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="text-yellow-400">•</span>
+          <span>Higher scores unlock larger micro-loan limits</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ReputationPage() {
   const { address } = useAccount();
   const [target, setTarget] = useState("");
   const [fund, setFund] = useState("");
   const [borrow, setBorrow] = useState("");
+  
   const { data: score } = useReadContract({
     address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
     abi: repAbi as any,
@@ -24,7 +317,6 @@ export default function ReputationPage() {
     args: [address || "0x0000000000000000000000000000000000000000"],
   });
 
-  // Read loan token address from the contract
   const { data: loanToken } = useReadContract({
     address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
     abi: repAbi as any,
@@ -32,7 +324,6 @@ export default function ReputationPage() {
     args: [],
   });
 
-  // Read decimals of loan token (default 18 if not available)
   const { data: tokenDecimals } = useReadContract({
     address: (loanToken as `0x${string}`) || undefined,
     abi: erc20Abi,
@@ -41,7 +332,6 @@ export default function ReputationPage() {
     query: { enabled: !!loanToken },
   });
 
-  // Read allowance for SocialReputation to spend user's token
   const { data: allowance } = useReadContract({
     address: (loanToken as `0x${string}`) || undefined,
     abi: erc20Abi,
@@ -62,85 +352,64 @@ export default function ReputationPage() {
   const fundUnits = useMemo(() => {
     try {
       if (!fund) return 0n;
-      // Use exact amount without adding decimal places
       return BigInt(Math.floor(Number(fund) * Math.pow(10, decimals)));
     } catch {
       return 0n;
     }
   }, [fund, decimals]);
+  
   const allowanceReady = typeof allowance === "bigint";
   const currentAllowance: bigint = allowanceReady ? (allowance as bigint) : 0n;
   const needsApprove = useMemo(() => {
     if (fundUnits <= 0n) return false;
-    // If we haven't loaded allowance yet, default to requiring approve to guide the user
     if (!allowanceReady) return true;
     return currentAllowance < fundUnits;
   }, [allowanceReady, currentAllowance, fundUnits]);
 
   return (
-    <div className="responsive-container py-2 sm:py-4 space-y-3 sm:space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto">
-      <h2 className="responsive-text font-bold">Social Reputation</h2>
-
-      <div className="card p-3 sm:p-4 space-y-3">
-        <div className="text-sm sm:text-base font-semibold">Your Score</div>
-        <p className="text-xs sm:text-sm opacity-80">Your reputation grows when you transact and receive endorsements from the community. Higher scores unlock larger micro‑loans.</p>
-        <div className="text-xl sm:text-2xl md:text-3xl font-extrabold">{score?.toString?.() || "0"}</div>
+    <div className="responsive-container py-6 sm:py-8 max-h-[calc(100vh-120px)] overflow-y-auto">
+      {/* Header */}
+      <div className="mb-8 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">Social Reputation</span>
+        </h1>
+        <p className="text-white/70">Build your reputation and access micro-loans</p>
       </div>
 
-      <div className="card p-3 sm:p-4 space-y-3">
-        <div className="text-sm sm:text-base font-semibold">Endorse a user</div>
-        <p className="text-xs sm:text-sm opacity-80">Endorse trusted contacts to boost their score. You can withdraw your endorsement later.</p>
-        <input className="responsive-input" placeholder="Target 0x... (leave empty for self)" value={target} onChange={(e)=> setTarget(e.target.value)} />
-        <div className="responsive-grid-3">
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "endorse", args: [(target || address) as `0x${string}`] })} className="responsive-button bg-blue-600 text-white hover:bg-blue-500 transition">Endorse</button>
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "unendorse", args: [(target || address) as `0x${string}`] })} className="responsive-button bg-gray-700 text-white hover:bg-gray-600 transition">Unendorse</button>
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "selfEndorse", args: [] })} className="responsive-button bg-purple-600 text-white hover:bg-purple-500 transition">Self‑endorse (once)</button>
+      <div className="responsive-grid-2 gap-8">
+        {/* Left Column */}
+        <div className="space-y-6">
+          <ScoreCard score={score?.toString?.() || "0"} delay={0} />
+          <EndorseSection 
+            target={target}
+            setTarget={setTarget}
+            address={address}
+            isPending={isPending}
+            isLoading={isLoading}
+            writeContract={writeContract}
+          />
         </div>
-      </div>
 
-      <div className="card p-3 sm:p-4 space-y-3">
-        <div className="text-sm sm:text-base font-semibold">Micro‑loans</div>
-        <p className="text-xs sm:text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay with a small interest. Your stake grows with pool gains. Demo uses MiniToken.</p>
-        <div className="responsive-grid">
-          <input className="responsive-input" placeholder={`Fund pool amount (${decimals} decimals)`} value={fund} onChange={(e)=> setFund(e.target.value)} />
-
-          {needsApprove ? (
-            <button
-              disabled={isApproving||isApproveMining || !fund || Number(fund) <= 0 || !loanToken}
-              onClick={()=> writeApprove({
-                address: loanToken as `0x${string}`,
-                abi: erc20Abi,
-                functionName: "approve",
-                // approve exactly needed amount (or could use MaxUint256 for unlimited)
-                args: [CONTRACT_ADDRESSES.socialReputation as `0x${string}`, fundUnits],
-              })}
-              className="responsive-button bg-purple-600 text-white hover:bg-purple-500 transition disabled:opacity-50"
-            >
-              {isApproving||isApproveMining ? "Approving..." : "Approve token"}
-            </button>
-          ) : (
-            <button
-              disabled={isPending||isLoading || !fund || Number(fund) <= 0}
-              onClick={()=> writeContract({
-                address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
-                abi: repAbi as any,
-                functionName: "fundPool",
-                args: [fundUnits] })}
-              className="responsive-button bg-blue-600 text-white hover:bg-blue-500 transition disabled:opacity-50"
-            >
-              {isPending||isLoading ? "Funding..." : "Fund Pool"}
-            </button>
-          )}
-          <div className="text-xs sm:text-sm opacity-80">Your current stake value (withdrawable): {stakeValue ? String(stakeValue) : "0"}</div>
-          <div className="responsive-grid-2">
-            <input className="responsive-input" placeholder="Withdraw amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
-            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "withdrawAmount", args: [BigInt(Math.floor(Number(borrow||"0") * Math.pow(10, decimals)))] })} className="responsive-button bg-gray-700 text-white hover:bg-gray-600 transition">Withdraw</button>
-          </div>
-          <input className="responsive-input" placeholder="Borrow amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
-          <div className="responsive-grid-2">
-            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "borrow", args: [BigInt(Math.floor(Number(borrow||"0") * Math.pow(10, decimals)))] })} className="responsive-button bg-blue-600 text-white hover:bg-blue-500 transition">Borrow</button>
-            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "repay", args: [BigInt(Math.floor(Number(borrow||"0") * Math.pow(10, decimals)))] })} className="responsive-button bg-green-600 text-white hover:bg-green-500 transition">Repay</button>
-          </div>
+        {/* Right Column */}
+        <div className="space-y-6">
+          <PoolSection 
+            fund={fund}
+            setFund={setFund}
+            borrow={borrow}
+            setBorrow={setBorrow}
+            decimals={decimals}
+            fundUnits={fundUnits}
+            needsApprove={needsApprove}
+            isApproving={isApproving}
+            isApproveMining={isApproveMining}
+            isPending={isPending}
+            isLoading={isLoading}
+            loanToken={loanToken}
+            stakeValue={stakeValue}
+            writeContract={writeContract}
+            writeApprove={writeApprove}
+          />
+          <ReputationInfo />
         </div>
       </div>
     </div>
