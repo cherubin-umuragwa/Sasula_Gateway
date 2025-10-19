@@ -4,6 +4,8 @@ import repAbi from "@/lib/abis/SocialReputation.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faCircle, faCheck, faTimes, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
 function MetricCard({ 
   title, 
@@ -130,7 +132,10 @@ function TransactionHistory() {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 tx.type === 'sent' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
               }`}>
-                {tx.type === 'sent' ? '↗' : '↙'}
+                <FontAwesomeIcon 
+                  icon={tx.type === 'sent' ? faArrowUp : faArrowDown} 
+                  className="text-sm" 
+                />
               </div>
               <div>
                 <div className="text-white font-medium">{tx.amount}</div>
@@ -196,7 +201,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <div className="text-xl font-bold text-white">U</div>
+            <FontAwesomeIcon icon={faUser} className="text-xl text-white" />
           </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Connected Wallet</h3>
@@ -205,9 +210,9 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <FontAwesomeIcon icon={faCircle} className="w-3 h-3 text-green-500 animate-pulse" />
               <span className="text-sm text-green-400 font-medium">Connected</span>
-        </div>
+            </div>
         </div>
         </div>
       )}
@@ -315,21 +320,21 @@ export default function Dashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 rounded-xl bg-white/5">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <FontAwesomeIcon icon={faCircle} className="w-3 h-3 text-green-500 animate-pulse" />
                 <span className="text-white font-medium">Base Sepolia</span>
               </div>
               <span className="text-green-400 text-sm">Online</span>
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl bg-white/5">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                <FontAwesomeIcon icon={faCircle} className="w-3 h-3 text-blue-500 animate-pulse" />
                 <span className="text-white font-medium">Payment Router</span>
               </div>
               <span className="text-blue-400 text-sm">Active</span>
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl bg-white/5">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                <FontAwesomeIcon icon={faCircle} className="w-3 h-3 text-purple-500 animate-pulse" />
                 <span className="text-white font-medium">Reputation System</span>
               </div>
               <span className="text-purple-400 text-sm">Synced</span>
