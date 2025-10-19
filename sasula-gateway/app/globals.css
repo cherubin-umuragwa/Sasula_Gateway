@@ -1,13 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #fcfcfe;
+  --foreground: #0d0f1a;
+  --primary: #6d28d9; /* violet-700 */
+  --secondary: #0ea5e9; /* sky-500 */
+  --accent: #10b981; /* emerald-500 */
 }
 
 .dark {
-  --background: #0b0b0e;
-  --foreground: #f3f4f6;
+  --background: #0b0d12;
+  --foreground: #e5e7eb;
+  --primary: #a78bfa; /* violet-300 */
+  --secondary: #38bdf8; /* sky-400 */
+  --accent: #34d399; /* emerald-400 */
 }
 
 body {
@@ -28,9 +34,12 @@ body {
 .btn {
   @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium transition active:scale-95;
 }
-.btn-primary { @apply bg-blue-600 text-white hover:bg-blue-500; }
-.btn-secondary { @apply bg-gray-700 text-white hover:bg-gray-600; }
-.btn-success { @apply bg-green-600 text-white hover:bg-green-500; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-secondary { background: var(--secondary); color: #fff; }
+.btn-secondary:hover { filter: brightness(1.05); }
+.btn-success { background: var(--accent); color: #fff; }
+.btn-success:hover { filter: brightness(1.05); }
 
 /* Interactive hover with changing radius */
 .hover-tile {

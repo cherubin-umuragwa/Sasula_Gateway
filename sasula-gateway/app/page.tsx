@@ -35,8 +35,8 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [splashDone]);
   return (
-    <div className="font-sans min-h-screen p-4 sm:p-8 gap-8 max-w-4xl mx-auto">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="font-sans min-h-screen">
+      <main className="mx-auto max-w-6xl p-4 sm:p-8 flex flex-col gap-10">
         {!splashDone ? (
           <div className="w-full h-[50vh] flex flex-col items-center justify-center text-center">
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
@@ -55,20 +55,37 @@ export default function Home() {
         )}
         {/* Removed Next.js logo for cleaner home */}
         {splashDone && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full">
-          {[
-            { href: "/dashboard", label: "Dashboard" },
-            { href: "/send", label: "Send" },
-            { href: "/feed", label: "Feed" },
-            { href: "/savings", label: "Savings" },
-            { href: "/reputation", label: "Reputation" },
-            { href: "/emergency", label: "Emergency" },
-            { href: "/voice", label: "Voice" },
-            { href: "/qr", label: "QR" },
-          ].map((i) => (
-            <Link key={i.href} className="hover-tile p-4 text-center" href={i.href}>{i.label}</Link>
-          ))}
-        </div>
+          <>
+            <section className="grid md:grid-cols-3 gap-4">
+              <div className="hover-tile p-5">
+                <h3 className="font-bold mb-1">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link className="btn btn-primary" href="/send">Send</Link>
+                  <Link className="btn btn-secondary" href="/qr">QR</Link>
+                  <Link className="btn btn-primary" href="/feed">Feed</Link>
+                  <Link className="btn btn-secondary" href="/voice">Voice</Link>
+                </div>
+              </div>
+              <Link className="hover-tile p-5" href="/dashboard">
+                <h3 className="font-bold mb-1">Dashboard</h3>
+                <p className="opacity-70 text-sm">Balances, recent activity and shortcuts.</p>
+              </Link>
+              <Link className="hover-tile p-5" href="/reputation">
+                <h3 className="font-bold mb-1">Reputation & Loans</h3>
+                <p className="opacity-70 text-sm">Fund pool, borrow and grow your score.</p>
+              </Link>
+            </section>
+            <section className="grid md:grid-cols-2 gap-4">
+              <Link className="hover-tile p-5" href="/savings">
+                <h3 className="font-bold mb-1">Savings Circles</h3>
+                <p className="opacity-70 text-sm">Trustless group saving and rotating payouts.</p>
+              </Link>
+              <Link className="hover-tile p-5" href="/emergency">
+                <h3 className="font-bold mb-1">Emergency Relief</h3>
+                <p className="opacity-70 text-sm">Toggle fee-free mode and view aid centers.</p>
+              </Link>
+            </section>
+          </>
         )}
       </main>
     </div>
