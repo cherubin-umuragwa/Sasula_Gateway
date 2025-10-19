@@ -181,7 +181,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="responsive-container py-6 sm:py-8 max-h-[calc(100vh-120px)] overflow-y-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8 animate-fadeInLeft">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">
@@ -194,10 +194,10 @@ export default function Dashboard() {
       {address && (
         <div className="card p-6 mb-8 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-indigo-500/20 animate-fadeInUp">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <span className="text-xl">👤</span>
-              </div>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="text-xl font-bold text-white">U</div>
+          </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Connected Wallet</h3>
                 <p className="text-white/60 font-mono text-sm">{formatAddress(address)}</p>
@@ -207,8 +207,8 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-sm text-green-400 font-medium">Connected</span>
-            </div>
-          </div>
+        </div>
+        </div>
         </div>
       )}
 
@@ -248,7 +248,7 @@ export default function Dashboard() {
           gradient="primary"
           delay={300}
         />
-      </div>
+        </div>
 
       {/* Quick Actions */}
       <div className="mb-8">

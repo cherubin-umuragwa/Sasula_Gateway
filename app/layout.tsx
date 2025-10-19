@@ -31,7 +31,9 @@ export default function RootLayout({
         <ThemeClient>
           <Providers>
             <TopBar />
-            {children}
+            <main className="pt-20">
+              {children}
+            </main>
           </Providers>
         </ThemeClient>
       </body>
