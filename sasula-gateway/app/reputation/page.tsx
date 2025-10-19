@@ -67,14 +67,14 @@ export default function ReputationPage() {
       return 0n;
     }
   }, [fund, decimals]);
+  const allowanceReady = typeof allowance === "bigint";
+  const currentAllowance: bigint = allowanceReady ? (allowance as bigint) : 0n;
   const needsApprove = useMemo(() => {
-    if (!allowance || !fundUnits) return false;
-    try {
-      return (allowance as bigint) < fundUnits;
-    } catch {
-      return false;
-    }
-  }, [allowance, fundUnits]);
+    if (fundUnits <= 0n) return false;
+    // If we haven't loaded allowance yet, default to requiring approve to guide the user
+    if (!allowanceReady) return true;
+    return currentAllowance < fundUnits;
+  }, [allowanceReady, currentAllowance, fundUnits]);
 
   return (
     <div className="p-4 space-y-6 max-w-2xl mx-auto">
@@ -110,6 +110,7 @@ export default function ReputationPage() {
                 address: loanToken as `0x${string}`,
                 abi: erc20Abi,
                 functionName: "approve",
+                // approve exactly needed amount (or could use MaxUint256 for unlimited)
                 args: [CONTRACT_ADDRESSES.socialReputation as `0x${string}`, fundUnits],
               })}
               className="rounded-lg bg-purple-600 text-white px-4 py-2 hover:bg-purple-500 transition disabled:opacity-50"
