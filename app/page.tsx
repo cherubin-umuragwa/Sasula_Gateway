@@ -35,20 +35,20 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [splashDone]);
   return (
-    <div className="font-sans min-h-screen">
-      <main className="mx-auto max-w-6xl p-4 sm:p-8 flex flex-col gap-10">
+    <div className="font-sans min-h-screen max-h-screen overflow-hidden">
+      <main className="responsive-container py-4 sm:py-8 flex flex-col gap-6 sm:gap-10 max-h-[calc(100vh-120px)] overflow-y-auto">
         {!splashDone ? (
-          <div className="w-full h-[50vh] flex flex-col items-center justify-center text-center">
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+          <div className="w-full h-[40vh] sm:h-[50vh] flex flex-col items-center justify-center text-center">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight">
               <Typewriter text="Hello, Welcome to Sasula Gateway" />
             </h1>
-            <p className="mt-3 opacity-70">Fast, social payments for Africa on Base.</p>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base opacity-70">Fast, social payments for Africa on Base.</p>
           </div>
         ) : (
-        <div className="w-full flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Sasula Gateway</h1>
-          <div className="flex items-center gap-3">
-            <button onClick={()=> setTheme(theme === "dark" ? "light" : "dark")} className="rounded-full border px-3 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">{theme === "dark" ? "🌞" : "🌙"}</button>
+        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">Sasula Gateway</h1>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button onClick={()=> setTheme(theme === "dark" ? "light" : "dark")} className="responsive-button rounded-full border hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">{theme === "dark" ? "🌞" : "🌙"}</button>
             <ConnectButton />
           </div>
         </div>
@@ -56,33 +56,33 @@ export default function Home() {
         {/* Removed Next.js logo for cleaner home */}
         {splashDone && (
           <>
-            <section className="grid md:grid-cols-3 gap-4">
-              <div className="hover-tile p-5">
-                <h3 className="font-bold mb-1">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link className="btn btn-primary" href="/send">Send</Link>
-                  <Link className="btn btn-secondary" href="/qr">QR</Link>
-                  <Link className="btn btn-primary" href="/feed">Feed</Link>
-                  <Link className="btn btn-secondary" href="/voice">Voice</Link>
+            <section className="responsive-grid-3">
+              <div className="hover-tile p-3 sm:p-5">
+                <h3 className="text-sm sm:text-base font-bold mb-1">Quick Actions</h3>
+                <div className="responsive-grid-2">
+                  <Link className="responsive-button btn btn-primary" href="/send">Send</Link>
+                  <Link className="responsive-button btn btn-secondary" href="/qr">QR</Link>
+                  <Link className="responsive-button btn btn-primary" href="/feed">Feed</Link>
+                  <Link className="responsive-button btn btn-secondary" href="/voice">Voice</Link>
                 </div>
               </div>
-              <Link className="hover-tile p-5" href="/dashboard">
-                <h3 className="font-bold mb-1">Dashboard</h3>
-                <p className="opacity-70 text-sm">Balances, recent activity and shortcuts.</p>
+              <Link className="hover-tile p-3 sm:p-5" href="/dashboard">
+                <h3 className="text-sm sm:text-base font-bold mb-1">Dashboard</h3>
+                <p className="opacity-70 text-xs sm:text-sm">Balances, recent activity and shortcuts.</p>
               </Link>
-              <Link className="hover-tile p-5" href="/reputation">
-                <h3 className="font-bold mb-1">Reputation & Loans</h3>
-                <p className="opacity-70 text-sm">Fund pool, borrow and grow your score.</p>
+              <Link className="hover-tile p-3 sm:p-5" href="/reputation">
+                <h3 className="text-sm sm:text-base font-bold mb-1">Reputation & Loans</h3>
+                <p className="opacity-70 text-xs sm:text-sm">Fund pool, borrow and grow your score.</p>
               </Link>
             </section>
-            <section className="grid md:grid-cols-2 gap-4">
-              <Link className="hover-tile p-5" href="/savings">
-                <h3 className="font-bold mb-1">Savings Circles</h3>
-                <p className="opacity-70 text-sm">Trustless group saving and rotating payouts.</p>
+            <section className="responsive-grid-2">
+              <Link className="hover-tile p-3 sm:p-5" href="/savings">
+                <h3 className="text-sm sm:text-base font-bold mb-1">Savings Circles</h3>
+                <p className="opacity-70 text-xs sm:text-sm">Trustless group saving and rotating payouts.</p>
               </Link>
-              <Link className="hover-tile p-5" href="/emergency">
-                <h3 className="font-bold mb-1">Emergency Relief</h3>
-                <p className="opacity-70 text-sm">Toggle fee-free mode and view aid centers.</p>
+              <Link className="hover-tile p-3 sm:p-5" href="/emergency">
+                <h3 className="text-sm sm:text-base font-bold mb-1">Emergency Relief</h3>
+                <p className="opacity-70 text-xs sm:text-sm">Toggle fee-free mode and view aid centers.</p>
               </Link>
             </section>
           </>
