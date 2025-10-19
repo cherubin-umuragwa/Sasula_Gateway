@@ -1,0 +1,8 @@
+{
+  "network": "baseSepolia",
+  "paymentRouter": "0xaC55D74a4987f09BeF7483A3c1669b8A7546ac43",
+  "emergencyMode": "0xBC36a996Ee351ee505be5854A4dd0023bCcd8146",
+  "miniToken": "0x7164bEB366256672D0Ac443bc3A24B87e82DbfF0",
+  "socialReputation": "0x167054D9E56839B84C7Bd6122066113EA969dB09",
+  "savingsCircles": "0xFc243ee8843fCeAdA27ef3939E81Df65dbE21d24"
+}
