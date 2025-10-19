@@ -36,8 +36,8 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">Emergency Mode</h2>
+    <div className="p-4 space-y-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold">Emergency Mode</h2>
       <div className="space-y-3">
         <div className="border rounded p-3">
           <div className="font-medium">Global Emergency</div>
@@ -46,7 +46,7 @@ export default function EmergencyPage() {
               <option value="false">Off</option>
               <option value="true">On</option>
             </select>
-            <button disabled={isPending || isLoading} onClick={setGlobal} className="rounded bg-blue-600 text-white px-3 py-2">Set</button>
+            <button disabled={isPending || isLoading} onClick={setGlobal} className="btn btn-primary">Set</button>
           </div>
         </div>
         <div className="border rounded p-3">
@@ -57,7 +57,7 @@ export default function EmergencyPage() {
               <option value="false">Off</option>
               <option value="true">On</option>
             </select>
-            <button disabled={isPending || isLoading} onClick={setRegion} className="rounded bg-blue-600 text-white px-3 py-2">Set</button>
+            <button disabled={isPending || isLoading} onClick={setRegion} className="btn btn-primary">Set</button>
           </div>
         </div>
         {hash && <div className="text-sm">Tx: {hash}</div>}

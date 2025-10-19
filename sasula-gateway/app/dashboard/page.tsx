@@ -7,17 +7,28 @@ export default function Dashboard() {
   const { data: balance } = useBalance({ address });
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">Dashboard</h2>
-      <div className="rounded-lg border p-4 space-y-1">
-        <div><strong>Address:</strong> {address || "Not connected"}</div>
-        <div><strong>Network:</strong> {chain?.name || "-"}</div>
-        <div><strong>Balance:</strong> {balance ? `${balance.formatted} ${balance.symbol}` : "-"}</div>
+    <div className="p-4 space-y-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold">Overview</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="card p-5 space-y-2">
+          <div className="text-sm opacity-70">Connected Wallet</div>
+          <div className="font-mono text-sm break-all truncate">{address || "Not connected"}</div>
+          <div className="text-sm opacity-70">Network</div>
+          <div>{chain?.name || "-"}</div>
+        </div>
+        <div className="card p-5 space-y-2">
+          <div className="text-sm opacity-70">Balance</div>
+          <div className="text-3xl font-extrabold">{balance ? `${balance.formatted} ${balance.symbol}` : "-"}</div>
+          <div className="text-xs opacity-70">On Base Sepolia</div>
+        </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/send">Send</Link>
-        <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/feed">Feed</Link>
-        <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/savings">Savings</Link>
+        <Link className="btn btn-primary" href="/send">Send</Link>
+        <Link className="btn btn-secondary" href="/feed">Feed</Link>
+        <Link className="btn btn-primary" href="/savings">Savings</Link>
+        <Link className="btn btn-secondary" href="/reputation">Reputation</Link>
+        <Link className="btn btn-primary" href="/emergency">Emergency</Link>
+        <Link className="btn btn-secondary" href="/voice">Voice</Link>
       </div>
     </div>
   );
