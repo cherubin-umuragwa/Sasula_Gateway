@@ -148,8 +148,8 @@
       ]
     },
     "C:\\Users\\CHERUBIN\\Documents\\CHAM\\CHAM HACKATHON\\Sasula_Gateway\\sasula-gateway\\contracts\\SocialReputation.sol": {
-      "lastModificationDate": 1760692356827,
-      "contentHash": "0fd26b799cc327dcfb9a757dec3970de",
+      "lastModificationDate": 1760843554660,
+      "contentHash": "6f68dd0192ef4162e1e277e8ef3379ca",
       "sourceName": "contracts/SocialReputation.sol",
       "solcConfig": {
         "version": "0.8.24",

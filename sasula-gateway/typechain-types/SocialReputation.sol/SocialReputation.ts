@@ -30,16 +30,24 @@ export interface SocialReputationInterface extends Interface {
       | "borrow"
       | "endorse"
       | "fundPool"
+      | "fundingPoints1e18"
       | "getScore"
+      | "getUserStakeValue"
+      | "interestBps"
       | "isAuthorizedCaller"
       | "loanToken"
       | "maxBorrowable"
       | "outstandingDebt"
       | "repay"
       | "reportPayment"
+      | "selfEndorse"
       | "setAuthorizedCaller"
       | "totalPool"
+      | "totalShares"
       | "unendorse"
+      | "userShares"
+      | "withdrawAmount"
+      | "withdrawShares"
   ): FunctionFragment;
 
   getEvent(
@@ -49,6 +57,7 @@ export interface SocialReputationInterface extends Interface {
       | "Endorsed"
       | "PaymentReported"
       | "PoolFunded"
+      | "PoolWithdrawn"
       | "Repaid"
       | "Unendorsed"
   ): EventFragment;
@@ -67,8 +76,20 @@ export interface SocialReputationInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "fundingPoints1e18",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getScore",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserStakeValue",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "interestBps",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isAuthorizedCaller",
@@ -89,20 +110,52 @@ export interface SocialReputationInterface extends Interface {
     values: [AddressLike, AddressLike, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "selfEndorse",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setAuthorizedCaller",
     values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(functionFragment: "totalPool", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "totalShares",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "unendorse",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "userShares",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawAmount",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawShares",
+    values: [BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "endorse", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fundPool", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fundingPoints1e18",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getScore", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserStakeValue",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "interestBps",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "isAuthorizedCaller",
     data: BytesLike
@@ -122,11 +175,28 @@ export interface SocialReputationInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "selfEndorse",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setAuthorizedCaller",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "totalPool", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalShares",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unendorse", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "userShares", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawShares",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace AuthorizedCallerEvent {
@@ -194,11 +264,38 @@ export namespace PaymentReportedEvent {
 }
 
 export namespace PoolFundedEvent {
-  export type InputTuple = [from: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [from: string, amount: bigint];
+  export type InputTuple = [
+    from: AddressLike,
+    amount: BigNumberish,
+    sharesMinted: BigNumberish
+  ];
+  export type OutputTuple = [
+    from: string,
+    amount: bigint,
+    sharesMinted: bigint
+  ];
   export interface OutputObject {
     from: string;
     amount: bigint;
+    sharesMinted: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace PoolWithdrawnEvent {
+  export type InputTuple = [
+    to: AddressLike,
+    amount: BigNumberish,
+    sharesBurned: BigNumberish
+  ];
+  export type OutputTuple = [to: string, amount: bigint, sharesBurned: bigint];
+  export interface OutputObject {
+    to: string;
+    amount: bigint;
+    sharesBurned: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -283,7 +380,13 @@ export interface SocialReputation extends BaseContract {
 
   fundPool: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
+  fundingPoints1e18: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
   getScore: TypedContractMethod<[user: AddressLike], [bigint], "view">;
+
+  getUserStakeValue: TypedContractMethod<[user: AddressLike], [bigint], "view">;
+
+  interestBps: TypedContractMethod<[], [bigint], "view">;
 
   isAuthorizedCaller: TypedContractMethod<
     [arg0: AddressLike],
@@ -310,6 +413,8 @@ export interface SocialReputation extends BaseContract {
     "nonpayable"
   >;
 
+  selfEndorse: TypedContractMethod<[], [void], "nonpayable">;
+
   setAuthorizedCaller: TypedContractMethod<
     [caller: AddressLike, allowed: boolean],
     [void],
@@ -318,7 +423,23 @@ export interface SocialReputation extends BaseContract {
 
   totalPool: TypedContractMethod<[], [bigint], "view">;
 
+  totalShares: TypedContractMethod<[], [bigint], "view">;
+
   unendorse: TypedContractMethod<[target: AddressLike], [void], "nonpayable">;
+
+  userShares: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  withdrawAmount: TypedContractMethod<
+    [amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  withdrawShares: TypedContractMethod<
+    [shares: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -337,8 +458,17 @@ export interface SocialReputation extends BaseContract {
     nameOrSignature: "fundPool"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "fundingPoints1e18"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "getScore"
   ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getUserStakeValue"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "interestBps"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "isAuthorizedCaller"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
@@ -367,6 +497,9 @@ export interface SocialReputation extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "selfEndorse"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "setAuthorizedCaller"
   ): TypedContractMethod<
     [caller: AddressLike, allowed: boolean],
@@ -377,8 +510,20 @@ export interface SocialReputation extends BaseContract {
     nameOrSignature: "totalPool"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "totalShares"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "unendorse"
   ): TypedContractMethod<[target: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "userShares"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "withdrawAmount"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "withdrawShares"
+  ): TypedContractMethod<[shares: BigNumberish], [void], "nonpayable">;
 
   getEvent(
     key: "AuthorizedCaller"
@@ -414,6 +559,13 @@ export interface SocialReputation extends BaseContract {
     PoolFundedEvent.InputTuple,
     PoolFundedEvent.OutputTuple,
     PoolFundedEvent.OutputObject
+  >;
+  getEvent(
+    key: "PoolWithdrawn"
+  ): TypedContractEvent<
+    PoolWithdrawnEvent.InputTuple,
+    PoolWithdrawnEvent.OutputTuple,
+    PoolWithdrawnEvent.OutputObject
   >;
   getEvent(
     key: "Repaid"
@@ -475,7 +627,7 @@ export interface SocialReputation extends BaseContract {
       PaymentReportedEvent.OutputObject
     >;
 
-    "PoolFunded(address,uint256)": TypedContractEvent<
+    "PoolFunded(address,uint256,uint256)": TypedContractEvent<
       PoolFundedEvent.InputTuple,
       PoolFundedEvent.OutputTuple,
       PoolFundedEvent.OutputObject
@@ -484,6 +636,17 @@ export interface SocialReputation extends BaseContract {
       PoolFundedEvent.InputTuple,
       PoolFundedEvent.OutputTuple,
       PoolFundedEvent.OutputObject
+    >;
+
+    "PoolWithdrawn(address,uint256,uint256)": TypedContractEvent<
+      PoolWithdrawnEvent.InputTuple,
+      PoolWithdrawnEvent.OutputTuple,
+      PoolWithdrawnEvent.OutputObject
+    >;
+    PoolWithdrawn: TypedContractEvent<
+      PoolWithdrawnEvent.InputTuple,
+      PoolWithdrawnEvent.OutputTuple,
+      PoolWithdrawnEvent.OutputObject
     >;
 
     "Repaid(address,uint256)": TypedContractEvent<
