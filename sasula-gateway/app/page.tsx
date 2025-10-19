@@ -2,14 +2,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useTheme } from "next-themes";
 
 export default function Home() {
+  const { theme, setTheme } = useTheme();
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-4 sm:p-8 gap-8">
+    <div className="font-sans min-h-screen p-4 sm:p-8 gap-8 max-w-4xl mx-auto">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="w-full flex items-center justify-between">
-          <h1 className="text-xl font-bold">Sasula Gateway</h1>
-          <ConnectButton />
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Sasula Gateway</h1>
+          <div className="flex items-center gap-3">
+            <button onClick={()=> setTheme(theme === "dark" ? "light" : "dark")} className="rounded-full border px-3 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">{theme === "dark" ? "🌞" : "🌙"}</button>
+            <ConnectButton />
+          </div>
         </div>
         <Image
           className="dark:invert"
@@ -20,14 +25,18 @@ export default function Home() {
           priority
         />
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/dashboard">Dashboard</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/send">Send</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/feed">Feed</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/savings">Savings</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/reputation">Reputation</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/emergency">Emergency</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/voice">Voice</Link>
-          <Link className="rounded-lg p-4 border hover:bg-neutral-100 dark:hover:bg-neutral-900" href="/qr">QR</Link>
+          {[
+            { href: "/dashboard", label: "Dashboard" },
+            { href: "/send", label: "Send" },
+            { href: "/feed", label: "Feed" },
+            { href: "/savings", label: "Savings" },
+            { href: "/reputation", label: "Reputation" },
+            { href: "/emergency", label: "Emergency" },
+            { href: "/voice", label: "Voice" },
+            { href: "/qr", label: "QR" },
+          ].map((i) => (
+            <Link key={i.href} className="rounded-xl p-4 border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition bg-white/60 dark:bg-black/40 backdrop-blur" href={i.href}>{i.label}</Link>
+          ))}
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
