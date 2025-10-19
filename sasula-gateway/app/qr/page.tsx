@@ -2,7 +2,7 @@
 import { useState } from "react";
 import QRCode from "qrcode";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { TOKENS } from "@/lib/tokenlist";
 import { useRouter } from "next/navigation";
 
