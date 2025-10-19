@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import QRCode from "qrcode";
-import { BrowserQRCodeReader } from "@zxing/browser";
+import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { useEffect, useRef } from "react";
 
 export default function QRPage() {
@@ -11,6 +11,7 @@ export default function QRPage() {
   const [qr, setQr] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const codeReaderRef = useRef<BrowserQRCodeReader | null>(null);
+  const controlsRef = useRef<IScannerControls | null>(null);
 
   async function generate() {
     const payload = JSON.stringify({ address, amount, message });
@@ -21,20 +22,36 @@ export default function QRPage() {
   useEffect(() => {
     codeReaderRef.current = new BrowserQRCodeReader();
     return () => {
-      codeReaderRef.current?.reset();
+      try {
+        controlsRef.current?.stop();
+        if (videoRef.current && (videoRef.current.srcObject as MediaStream | null)) {
+          const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+          tracks.forEach((t) => t.stop());
+          videoRef.current.srcObject = null;
+        }
+      } catch {}
     };
   }, []);
 
   async function startScan() {
     try {
       if (!codeReaderRef.current) return;
-      const result = await codeReaderRef.current.decodeOnceFromVideoDevice(undefined, videoRef.current!);
-      try {
-        const json = JSON.parse(result.getText());
-        alert(`Scanned:\nAddress: ${json.address}\nAmount: ${json.amount}\nMessage: ${json.message}`);
-      } catch {
-        alert(`Scanned text: ${result.getText()}`);
-      }
+      // Start continuous decode and stop as soon as a result is received
+      controlsRef.current = await codeReaderRef.current.decodeFromVideoDevice(
+        undefined,
+        videoRef.current!,
+        (result, err, controls) => {
+          if (result) {
+            try {
+              const json = JSON.parse(result.getText());
+              alert(`Scanned:\nAddress: ${json.address}\nAmount: ${json.amount}\nMessage: ${json.message}`);
+            } catch {
+              alert(`Scanned text: ${result.getText()}`);
+            }
+            controls.stop();
+          }
+        }
+      );
     } catch (e) {
       console.error(e);
       alert("Unable to access camera. Please allow camera permissions.");
