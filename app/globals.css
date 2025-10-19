@@ -16,8 +16,15 @@
   --accent: #34d399; /* emerald-400 */
 }
 
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 body {
   min-height: 100vh;
+  max-height: 100vh;
   background:
     radial-gradient(1200px 400px at 0% 0%, rgba(99,102,241,0.08), transparent),
     radial-gradient(1200px 400px at 100% 0%, rgba(16,185,129,0.08), transparent),
@@ -49,4 +56,55 @@ body {
 .hover-tile:hover {
   border-radius: 22px;
   box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+}
+
+/* Responsive utilities */
+.responsive-container {
+  @apply w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8;
+}
+
+.responsive-text {
+  @apply text-sm sm:text-base md:text-lg;
+}
+
+.responsive-grid {
+  @apply grid gap-2 sm:gap-3 md:gap-4;
+}
+
+.responsive-grid-2 {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4;
+}
+
+.responsive-grid-3 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4;
+}
+
+.responsive-input {
+  @apply w-full px-2 py-1 sm:px-3 sm:py-2 text-sm sm:text-base border rounded-lg;
+}
+
+.responsive-button {
+  @apply px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg font-medium;
+}
+
+/* Prevent overflow on small screens */
+.no-overflow {
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 640px) {
+  .mobile-padding {
+    @apply px-2 py-1;
+  }
+  
+  .mobile-text {
+    @apply text-xs;
+  }
+  
+  .mobile-button {
+    @apply px-2 py-1 text-xs;
+  }
 }

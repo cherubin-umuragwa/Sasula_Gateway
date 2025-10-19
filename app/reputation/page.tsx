@@ -62,7 +62,8 @@ export default function ReputationPage() {
   const fundUnits = useMemo(() => {
     try {
       if (!fund) return 0n;
-      return parseUnits(fund, decimals);
+      // Use exact amount without adding decimal places
+      return BigInt(Math.floor(Number(fund) * Math.pow(10, decimals)));
     } catch {
       return 0n;
     }
@@ -77,31 +78,31 @@ export default function ReputationPage() {
   }, [allowanceReady, currentAllowance, fundUnits]);
 
   return (
-    <div className="min-h-[calc(100vh-120px)] p-4 space-y-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold">Social Reputation</h2>
+    <div className="responsive-container py-2 sm:py-4 space-y-3 sm:space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+      <h2 className="responsive-text font-bold">Social Reputation</h2>
 
-      <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
-        <div className="font-semibold">Your Score</div>
-        <p className="text-sm opacity-80">Your reputation grows when you transact and receive endorsements from the community. Higher scores unlock larger micro‑loans.</p>
-        <div className="text-3xl font-extrabold">{score?.toString?.() || "0"}</div>
+      <div className="card p-3 sm:p-4 space-y-3">
+        <div className="text-sm sm:text-base font-semibold">Your Score</div>
+        <p className="text-xs sm:text-sm opacity-80">Your reputation grows when you transact and receive endorsements from the community. Higher scores unlock larger micro‑loans.</p>
+        <div className="text-xl sm:text-2xl md:text-3xl font-extrabold">{score?.toString?.() || "0"}</div>
       </div>
 
-      <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
-        <div className="font-semibold">Endorse a user</div>
-        <p className="text-sm opacity-80">Endorse trusted contacts to boost their score. You can withdraw your endorsement later.</p>
-        <input className="border rounded p-2 w-full" placeholder="Target 0x... (leave empty for self)" value={target} onChange={(e)=> setTarget(e.target.value)} />
-        <div className="flex gap-2">
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "endorse", args: [(target || address) as `0x${string}`] })} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Endorse</button>
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "unendorse", args: [(target || address) as `0x${string}`] })} className="rounded-lg bg-gray-700 text-white px-4 py-2 hover:bg-gray-600 transition">Unendorse</button>
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "selfEndorse", args: [] })} className="rounded-lg bg-purple-600 text-white px-4 py-2 hover:bg-purple-500 transition">Self‑endorse (once)</button>
+      <div className="card p-3 sm:p-4 space-y-3">
+        <div className="text-sm sm:text-base font-semibold">Endorse a user</div>
+        <p className="text-xs sm:text-sm opacity-80">Endorse trusted contacts to boost their score. You can withdraw your endorsement later.</p>
+        <input className="responsive-input" placeholder="Target 0x... (leave empty for self)" value={target} onChange={(e)=> setTarget(e.target.value)} />
+        <div className="responsive-grid-3">
+          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "endorse", args: [(target || address) as `0x${string}`] })} className="responsive-button bg-blue-600 text-white hover:bg-blue-500 transition">Endorse</button>
+          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "unendorse", args: [(target || address) as `0x${string}`] })} className="responsive-button bg-gray-700 text-white hover:bg-gray-600 transition">Unendorse</button>
+          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "selfEndorse", args: [] })} className="responsive-button bg-purple-600 text-white hover:bg-purple-500 transition">Self‑endorse (once)</button>
         </div>
       </div>
 
-      <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
-        <div className="font-semibold">Micro‑loans</div>
-        <p className="text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay with a small interest. Your stake grows with pool gains. Demo uses MiniToken.</p>
-        <div className="grid gap-2">
-          <input className="border rounded p-2 w-full" placeholder={`Fund pool amount (${decimals} decimals)`} value={fund} onChange={(e)=> setFund(e.target.value)} />
+      <div className="card p-3 sm:p-4 space-y-3">
+        <div className="text-sm sm:text-base font-semibold">Micro‑loans</div>
+        <p className="text-xs sm:text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay with a small interest. Your stake grows with pool gains. Demo uses MiniToken.</p>
+        <div className="responsive-grid">
+          <input className="responsive-input" placeholder={`Fund pool amount (${decimals} decimals)`} value={fund} onChange={(e)=> setFund(e.target.value)} />
 
           {needsApprove ? (
             <button
@@ -113,7 +114,7 @@ export default function ReputationPage() {
                 // approve exactly needed amount (or could use MaxUint256 for unlimited)
                 args: [CONTRACT_ADDRESSES.socialReputation as `0x${string}`, fundUnits],
               })}
-              className="rounded-lg bg-purple-600 text-white px-4 py-2 hover:bg-purple-500 transition disabled:opacity-50"
+              className="responsive-button bg-purple-600 text-white hover:bg-purple-500 transition disabled:opacity-50"
             >
               {isApproving||isApproveMining ? "Approving..." : "Approve token"}
             </button>
@@ -125,20 +126,20 @@ export default function ReputationPage() {
                 abi: repAbi as any,
                 functionName: "fundPool",
                 args: [fundUnits] })}
-              className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition disabled:opacity-50"
+              className="responsive-button bg-blue-600 text-white hover:bg-blue-500 transition disabled:opacity-50"
             >
               {isPending||isLoading ? "Funding..." : "Fund Pool"}
             </button>
           )}
-          <div className="text-sm opacity-80">Your current stake value (withdrawable): {stakeValue ? String(stakeValue) : "0"}</div>
-          <div className="flex gap-2">
-            <input className="border rounded p-2 w-full" placeholder="Withdraw amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
-            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "withdrawAmount", args: [parseEther(borrow||"0")] })} className="rounded-lg bg-gray-700 text-white px-4 py-2 hover:bg-gray-600 transition">Withdraw</button>
+          <div className="text-xs sm:text-sm opacity-80">Your current stake value (withdrawable): {stakeValue ? String(stakeValue) : "0"}</div>
+          <div className="responsive-grid-2">
+            <input className="responsive-input" placeholder="Withdraw amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
+            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "withdrawAmount", args: [BigInt(Math.floor(Number(borrow||"0") * Math.pow(10, decimals)))] })} className="responsive-button bg-gray-700 text-white hover:bg-gray-600 transition">Withdraw</button>
           </div>
-          <input className="border rounded p-2 w-full" placeholder="Borrow amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
-          <div className="flex gap-2">
-            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "borrow", args: [parseEther(borrow||"0")] })} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Borrow</button>
-            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "repay", args: [parseEther(borrow||"0")] })} className="rounded-lg bg-green-600 text-white px-4 py-2 hover:bg-green-500 transition">Repay</button>
+          <input className="responsive-input" placeholder="Borrow amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />
+          <div className="responsive-grid-2">
+            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "borrow", args: [BigInt(Math.floor(Number(borrow||"0") * Math.pow(10, decimals)))] })} className="responsive-button bg-blue-600 text-white hover:bg-blue-500 transition">Borrow</button>
+            <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "repay", args: [BigInt(Math.floor(Number(borrow||"0") * Math.pow(10, decimals)))] })} className="responsive-button bg-green-600 text-white hover:bg-green-500 transition">Repay</button>
           </div>
         </div>
       </div>

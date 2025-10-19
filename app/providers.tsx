@@ -24,6 +24,11 @@ const config = getDefaultConfig({
     ),
   },
   ssr: false,
+  // Ensure users stay on the app after connecting
+  appInfo: {
+    appName: "Sasula Gateway",
+    learnMoreUrl: "https://sasula-gateway.vercel.app",
+  },
 });
 
 export default function Providers({ children }: { children: ReactNode }) {
