@@ -77,7 +77,7 @@ export default function ReputationPage() {
   }, [allowanceReady, currentAllowance, fundUnits]);
 
   return (
-    <div className="p-4 space-y-6 max-w-2xl mx-auto">
+    <div className="min-h-[calc(100vh-120px)] p-4 space-y-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold">Social Reputation</h2>
 
       <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">

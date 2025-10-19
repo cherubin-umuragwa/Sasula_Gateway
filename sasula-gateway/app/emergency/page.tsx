@@ -36,7 +36,7 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="p-4 space-y-6 max-w-4xl mx-auto">
+    <div className="min-h-[calc(100vh-120px)] p-4 space-y-6 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold">Emergency Mode</h2>
       <div className="space-y-3">
         <div className="border rounded p-3">
