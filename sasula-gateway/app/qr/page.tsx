@@ -2,7 +2,7 @@
 import { useState } from "react";
 import QRCode from "qrcode";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function QRPage() {
@@ -10,14 +10,15 @@ export default function QRPage() {
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
+  const [tokenAddress, setTokenAddress] = useState("");
   const [qr, setQr] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const codeReaderRef = useRef<BrowserQRCodeReader | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
 
   async function generate() {
-    // Support ERC20 in payload by adding token fields when relevant
-    const payload = JSON.stringify({ address, amount, message, token: "ETH" });
+    // If tokenAddress present, encode ERC20 token; else default to ETH
+    const payload = JSON.stringify({ address, amount, message, token: tokenAddress ? "ERC20" : "ETH", tokenAddress: tokenAddress || undefined });
     const dataUrl = await QRCode.toDataURL(payload);
     setQr(dataUrl);
   }

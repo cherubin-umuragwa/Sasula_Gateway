@@ -4,11 +4,39 @@ import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useTheme } from "next-themes";
 
+import { useEffect, useState } from "react";
+
+function Typewriter({ text }: { text: string }) {
+  const [out, setOut] = useState("");
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => {
+      setOut(text.slice(0, i++));
+      if (i > text.length) clearInterval(id);
+    }, 50);
+    return () => clearInterval(id);
+  }, [text]);
+  return <span>{out}</span>;
+}
+
 export default function Home() {
   const { theme, setTheme } = useTheme();
+  const [splashDone, setSplashDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSplashDone(true), 2800);
+    return () => clearTimeout(t);
+  }, []);
   return (
     <div className="font-sans min-h-screen p-4 sm:p-8 gap-8 max-w-4xl mx-auto">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        {!splashDone ? (
+          <div className="w-full h-[50vh] flex flex-col items-center justify-center text-center">
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+              <Typewriter text="Hello, Welcome to Sasula Gateway" />
+            </h1>
+            <p className="mt-3 opacity-70">Fast, social payments for Africa on Base.</p>
+          </div>
+        ) : (
         <div className="w-full flex items-center justify-between">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Sasula Gateway</h1>
           <div className="flex items-center gap-3">
@@ -16,6 +44,7 @@ export default function Home() {
             <ConnectButton />
           </div>
         </div>
+        )}
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -24,6 +53,7 @@ export default function Home() {
           height={38}
           priority
         />
+        {splashDone && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
           {[
             { href: "/dashboard", label: "Dashboard" },
@@ -38,6 +68,7 @@ export default function Home() {
             <Link key={i.href} className="rounded-xl p-4 border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition bg-white/60 dark:bg-black/40 backdrop-blur" href={i.href}>{i.label}</Link>
           ))}
         </div>
+        )}
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
