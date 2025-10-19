@@ -53,7 +53,17 @@ export default function ReputationPage() {
         <p className="text-sm opacity-80">Fund the community pool, then eligible users can borrow and repay with a small interest. Your stake grows with pool gains. Demo uses MiniToken.</p>
         <div className="grid gap-2">
           <input className="border rounded p-2 w-full" placeholder="Fund pool amount" value={fund} onChange={(e)=> setFund(e.target.value)} />
-          <button disabled={isPending||isLoading} onClick={()=> writeContract({ address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`, abi: repAbi as any, functionName: "fundPool", args: [parseEther(fund||"0")] })} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Fund Pool</button>
+          <button
+            disabled={isPending||isLoading || !fund || Number(fund) <= 0}
+            onClick={()=> writeContract({
+              address: CONTRACT_ADDRESSES.socialReputation as `0x${string}`,
+              abi: repAbi as any,
+              functionName: "fundPool",
+              args: [parseEther(fund||"0")] })}
+            className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition disabled:opacity-50"
+          >
+            {isPending||isLoading ? "Funding..." : "Fund Pool"}
+          </button>
           <div className="text-sm opacity-80">Your current stake value (withdrawable): {stakeValue ? String(stakeValue) : "0"}</div>
           <div className="flex gap-2">
             <input className="border rounded p-2 w-full" placeholder="Withdraw amount" value={borrow} onChange={(e)=> setBorrow(e.target.value)} />

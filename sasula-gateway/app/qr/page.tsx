@@ -53,8 +53,12 @@ export default function QRPage() {
               if (json.address) params.set("to", json.address);
               if (json.amount) params.set("amount", String(json.amount));
               if (json.message) params.set("message", String(json.message));
-              // default token is ETH
-              params.set("token", "ETH");
+              if (json.token === "ERC20") {
+                params.set("token", "ERC20");
+                if (json.tokenAddress) params.set("tokenAddress", String(json.tokenAddress));
+              } else {
+                params.set("token", "ETH");
+              }
               controls.stop();
               router.push(`/send?${params.toString()}`);
             } catch {
