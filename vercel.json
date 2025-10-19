@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd sasula-gateway && npm install && npm run build",
+  "outputDirectory": "sasula-gateway/.next",
+  "installCommand": "cd sasula-gateway && npm install",
+  "framework": "nextjs",
+  "rootDirectory": "sasula-gateway"
+}
