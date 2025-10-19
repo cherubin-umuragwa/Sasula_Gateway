@@ -3,8 +3,10 @@ import { useState } from "react";
 import QRCode from "qrcode";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function QRPage() {
+  const router = useRouter();
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
@@ -44,11 +46,19 @@ export default function QRPage() {
           if (result) {
             try {
               const json = JSON.parse(result.getText());
-              alert(`Scanned:\nAddress: ${json.address}\nAmount: ${json.amount}\nMessage: ${json.message}`);
+              const params = new URLSearchParams();
+              if (json.address) params.set("to", json.address);
+              if (json.amount) params.set("amount", String(json.amount));
+              if (json.message) params.set("message", String(json.message));
+              // default token is ETH
+              params.set("token", "ETH");
+              controls.stop();
+              router.push(`/send?${params.toString()}`);
             } catch {
+              // Not JSON, just show text
               alert(`Scanned text: ${result.getText()}`);
+              controls.stop();
             }
-            controls.stop();
           }
         }
       );
