@@ -27,7 +27,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="p-4 space-y-6 max-w-4xl mx-auto">
+    <div className="min-h-[calc(100vh-120px)] p-4 space-y-6 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold">Overview</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="card p-5 space-y-2">

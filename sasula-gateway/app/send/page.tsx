@@ -74,7 +74,7 @@ export default function SendPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="min-h-[calc(100vh-120px)] p-4 space-y-4 max-w-3xl mx-auto">
       <h2 className="text-xl font-semibold">Send Money</h2>
       <div className="grid gap-3">
         <select className="border rounded p-2" value={token} onChange={(e) => setToken(e.target.value as any)}>

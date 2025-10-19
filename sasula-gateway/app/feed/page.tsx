@@ -90,7 +90,7 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="min-h-[calc(100vh-120px)] p-4 space-y-4 max-w-4xl mx-auto">
       <h2 className="text-xl font-semibold">Public Feed</h2>
       <div className="space-y-3">
         {events.slice(page * pageSize, page * pageSize + pageSize).map((e, i) => (
