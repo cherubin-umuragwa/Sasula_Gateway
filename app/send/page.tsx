@@ -7,6 +7,218 @@ import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { TOKENS } from "@/lib/tokenlist";
 import { useSearchParams } from "next/navigation";
 
+function TokenSelector({ 
+  token, 
+  setToken, 
+  tokenAddress, 
+  setTokenAddress 
+}: { 
+  token: "ETH" | "ERC20"; 
+  setToken: (token: "ETH" | "ERC20") => void;
+  tokenAddress: string;
+  setTokenAddress: (address: string) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-white/80 mb-2">Token Type</label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setToken("ETH")}
+            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+              token === "ETH" 
+                ? "border-indigo-500 bg-indigo-500/20 text-white" 
+                : "border-white/20 bg-white/5 text-white/60 hover:border-white/30"
+            }`}
+          >
+            <div className="text-2xl mb-2">⚡</div>
+            <div className="font-semibold">ETH</div>
+            <div className="text-xs opacity-70">Native Token</div>
+          </button>
+          <button
+            onClick={() => setToken("ERC20")}
+            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+              token === "ERC20" 
+                ? "border-cyan-500 bg-cyan-500/20 text-white" 
+                : "border-white/20 bg-white/5 text-white/60 hover:border-white/30"
+            }`}
+          >
+            <div className="text-2xl mb-2">🪙</div>
+            <div className="font-semibold">ERC-20</div>
+            <div className="text-xs opacity-70">Tokens</div>
+          </button>
+        </div>
+      </div>
+
+      {token === "ERC20" && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">Select Token</label>
+            <select 
+              className="input w-full"
+              value={tokenAddress} 
+              onChange={(e) => setTokenAddress(e.target.value as `0x${string}`)}
+            >
+              <option value="">Choose a token</option>
+              {TOKENS.filter(t => t.address !== "0x0000000000000000000000000000000000000000").map((t) => (
+                <option key={t.symbol} value={t.address}>
+                  {t.symbol} - {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">Or paste token address</label>
+            <input 
+              className="input w-full" 
+              placeholder="0x..." 
+              value={tokenAddress} 
+              onChange={(e) => setTokenAddress(e.target.value)} 
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AmountInput({ 
+  amount, 
+  setAmount, 
+  token 
+}: { 
+  amount: string; 
+  setAmount: (amount: string) => void;
+  token: "ETH" | "ERC20";
+}) {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-white/80">Amount</label>
+      <div className={`relative transition-all duration-300 ${focused ? 'scale-105' : ''}`}>
+        <input 
+          className="input w-full text-xl font-semibold pr-16" 
+          placeholder="0.0" 
+          value={amount} 
+          onChange={(e) => setAmount(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 font-medium">
+          {token}
+        </div>
+      </div>
+      <div className="flex gap-2">
+        {["0.1", "0.5", "1", "Max"].map((value) => (
+          <button
+            key={value}
+            onClick={() => setAmount(value === "Max" ? "0" : value)}
+            className="px-3 py-1 text-xs bg-white/10 hover:bg-white/20 rounded-lg transition-colors duration-300"
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecipientInput({ 
+  to, 
+  setTo 
+}: { 
+  to: string; 
+  setTo: (to: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-white/80">Recipient Address</label>
+      <input 
+        className="input w-full font-mono" 
+        placeholder="0x..." 
+        value={to} 
+        onChange={(e) => setTo(e.target.value)} 
+      />
+      <div className="flex items-center gap-2 text-xs text-white/60">
+        <span>💡</span>
+        <span>You can also scan a QR code or paste from clipboard</span>
+      </div>
+    </div>
+  );
+}
+
+function MessageInput({ 
+  message, 
+  setMessage 
+}: { 
+  message: string; 
+  setMessage: (message: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-white/80">Message (Optional)</label>
+      <textarea 
+        className="input w-full h-20 resize-none" 
+        placeholder="Add a personal message..." 
+        value={message} 
+        onChange={(e) => setMessage(e.target.value)}
+        maxLength={100}
+      />
+      <div className="flex justify-between text-xs text-white/60">
+        <span>💬 Social payments with messages</span>
+        <span>{message.length}/100</span>
+      </div>
+    </div>
+  );
+}
+
+function TransactionSummary({ 
+  token, 
+  amount, 
+  to, 
+  message, 
+  tokenAddress 
+}: { 
+  token: "ETH" | "ERC20"; 
+  amount: string; 
+  to: string; 
+  message: string;
+  tokenAddress: string;
+}) {
+  if (!amount || !to) return null;
+
+  return (
+    <div className="card p-6 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-indigo-500/20 animate-fadeInUp">
+      <h3 className="text-lg font-semibold text-white mb-4">Transaction Summary</h3>
+      <div className="space-y-3">
+        <div className="flex justify-between">
+          <span className="text-white/70">Amount:</span>
+          <span className="text-white font-semibold">{amount} {token}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-white/70">To:</span>
+          <span className="text-white font-mono text-sm">{to.slice(0, 6)}...{to.slice(-4)}</span>
+        </div>
+        {message && (
+          <div className="flex justify-between">
+            <span className="text-white/70">Message:</span>
+            <span className="text-white text-sm max-w-32 truncate">{message}</span>
+          </div>
+        )}
+        <div className="flex justify-between">
+          <span className="text-white/70">Network:</span>
+          <span className="text-white">Base Sepolia</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-white/70">Fee:</span>
+          <span className="text-white">~$0.01</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SendPage() {
   const { address } = useAccount();
   const params = useSearchParams();
@@ -73,33 +285,139 @@ export default function SendPage() {
     }
   }
 
+  const isDisabled = isPending || isMining || isApproveMining || !amount || !to || !address;
+
   return (
-    <div className="responsive-container py-2 sm:py-4 space-y-3 sm:space-y-4 max-h-[calc(100vh-120px)] overflow-y-auto">
-      <h2 className="responsive-text font-semibold">Send Money</h2>
-      <div className="responsive-grid">
-        <select className="responsive-input" value={token} onChange={(e) => setToken(e.target.value as any)}>
-          <option value="ETH">ETH</option>
-          <option value="ERC20">ERC-20 (e.g., MiniToken/USDC)</option>
-        </select>
-        {token === "ERC20" && (
-          <div className="responsive-grid">
-            <select className="responsive-input" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value as `0x${string}`)}>
-              <option value="">Select token</option>
-              {TOKENS.filter(t=> t.address !== "0x0000000000000000000000000000000000000000").map((t)=> (
-                <option key={t.symbol} value={t.address}>{t.symbol} - {t.name}</option>
-              ))}
-            </select>
-            <input className="responsive-input" placeholder="Or paste token address" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value)} />
+    <div className="responsive-container py-6 sm:py-8 max-h-[calc(100vh-120px)] overflow-y-auto">
+      {/* Header */}
+      <div className="mb-8 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">Send Money</span>
+        </h1>
+        <p className="text-white/70">Transfer funds instantly with social messages</p>
+      </div>
+
+      <div className="responsive-grid-2 gap-8">
+        {/* Send Form */}
+        <div className="space-y-6">
+          <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '100ms' }}>
+            <h2 className="text-xl font-semibold text-white mb-6">Payment Details</h2>
+            <div className="space-y-6">
+              <TokenSelector 
+                token={token} 
+                setToken={setToken}
+                tokenAddress={tokenAddress}
+                setTokenAddress={setTokenAddress}
+              />
+              <AmountInput amount={amount} setAmount={setAmount} token={token} />
+              <RecipientInput to={to} setTo={setTo} />
+              <MessageInput message={message} setMessage={setMessage} />
+            </div>
           </div>
-        )}
-        <input className="responsive-input" placeholder="Recipient 0x..." value={to} onChange={(e)=> setTo(e.target.value)} />
-        <input className="responsive-input" placeholder="Amount" value={amount} onChange={(e)=> setAmount(e.target.value)} />
-        <input className="responsive-input" placeholder="Message (optional)" value={message} onChange={(e)=> setMessage(e.target.value)} />
-        <button onClick={onSend} disabled={isPending || isMining || isApproveMining} className="responsive-button bg-blue-600 text-white">
-          {token === "ERC20" && needsApprove ? (isApproveMining ? "Approving..." : "Approve") : (isMining ? "Sending..." : "Send")}
-        </button>
-        {hash && <div className="text-xs sm:text-sm no-overflow">Tx: {hash}</div>}
-        {error && <div className="text-xs sm:text-sm text-red-600">{error.message}</div>}
+
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            <button 
+              onClick={onSend} 
+              disabled={isDisabled}
+              className={`btn w-full py-4 text-lg font-semibold transition-all duration-300 ${
+                isDisabled 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'hover:scale-105 hover:shadow-lg'
+              }`}
+            >
+              {token === "ERC20" && needsApprove ? (
+                isApproveMining ? "Approving..." : "Approve Token"
+              ) : (
+                isMining ? "Sending..." : "Send Payment"
+              )}
+            </button>
+
+            {hash && (
+              <div className="card p-4 bg-green-500/10 border border-green-500/20 animate-fadeInUp">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Transaction Submitted</div>
+                    <div className="text-white/60 text-sm font-mono break-all">{hash}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="card p-4 bg-red-500/10 border border-red-500/20 animate-fadeInUp">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <span className="text-red-400">✗</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Transaction Failed</div>
+                    <div className="text-white/60 text-sm">{error.message}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Transaction Summary */}
+        <div className="space-y-6">
+          <TransactionSummary 
+            token={token}
+            amount={amount}
+            to={to}
+            message={message}
+            tokenAddress={tokenAddress}
+          />
+
+          {/* Quick Actions */}
+          <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
+            <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+            <div className="space-y-3">
+              <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📱</span>
+                  <div>
+                    <div className="text-white font-medium">Scan QR Code</div>
+                    <div className="text-white/60 text-sm">Use camera to scan payment QR</div>
+                  </div>
+                </div>
+              </button>
+              <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📋</span>
+                  <div>
+                    <div className="text-white font-medium">Paste from Clipboard</div>
+                    <div className="text-white/60 text-sm">Paste address from clipboard</div>
+                  </div>
+                </div>
+              </button>
+              <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all duration-300 hover:scale-105">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">👥</span>
+                  <div>
+                    <div className="text-white font-medium">Recent Contacts</div>
+                    <div className="text-white/60 text-sm">Send to recent recipients</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div className="card p-6 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 animate-fadeInUp" style={{ animationDelay: '300ms' }}>
+            <h3 className="text-lg font-semibold text-white mb-4">💡 Tips</h3>
+            <div className="space-y-2 text-sm text-white/70">
+              <div>• Double-check the recipient address</div>
+              <div>• Add a message for social payments</div>
+              <div>• Keep some ETH for gas fees</div>
+              <div>• Use QR codes for quick payments</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
