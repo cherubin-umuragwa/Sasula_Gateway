@@ -21,11 +21,19 @@ function Typewriter({ text }: { text: string }) {
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
-  const [splashDone, setSplashDone] = useState(false);
+  const [splashDone, setSplashDone] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const seen = localStorage.getItem("sasula_splash_seen");
+    return seen === "1";
+  });
   useEffect(() => {
-    const t = setTimeout(() => setSplashDone(true), 2800);
+    if (splashDone) return;
+    const t = setTimeout(() => {
+      setSplashDone(true);
+      localStorage.setItem("sasula_splash_seen", "1");
+    }, 2800);
     return () => clearTimeout(t);
-  }, []);
+  }, [splashDone]);
   return (
     <div className="font-sans min-h-screen p-4 sm:p-8 gap-8 max-w-4xl mx-auto">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -45,14 +53,7 @@ export default function Home() {
           </div>
         </div>
         )}
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
+        {/* Removed Next.js logo for cleaner home */}
         {splashDone && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
           {[
