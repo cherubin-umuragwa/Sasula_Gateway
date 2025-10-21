@@ -30,7 +30,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-[env(safe-area-inset-bottom)]">
+      <div className="w-full pb-[env(safe-area-inset-bottom)]">
         <div className="glass rounded-t-2xl backdrop-blur-xl border-t border-white/10 bg-white/5 dark:bg-black/30">
           <ul className="grid grid-cols-5">
             {NAV_ITEMS.map((item) => {
