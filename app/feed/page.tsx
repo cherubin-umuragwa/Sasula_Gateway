@@ -90,38 +90,46 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] p-4 space-y-4 max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold">Public Feed</h2>
-      <div className="space-y-3">
+    <div className="responsive-container py-6 sm:py-8 max-w-5xl">
+      <div className="mb-6 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">Public Feed</span>
+        </h1>
+        <p className="text-white/70">Live stream of payments with social interactions</p>
+      </div>
+
+      <div className="space-y-4">
         {events.slice(page * pageSize, page * pageSize + pageSize).map((e, i) => (
-          <div key={i} className="border rounded p-3 text-sm break-all">
-            <div><strong>From:</strong> {e.args?.from}</div>
-            <div><strong>To:</strong> {e.args?.to}</div>
-            <div><strong>Token:</strong> {e.args?.token}</div>
-            <div><strong>Amount:</strong> {formatAmount(e.args?.token as string, e.args?.amount as bigint)}</div>
-            <div><strong>Message:</strong> {e.args?.message}</div>
-            <div><strong>Time:</strong> {new Date(Number(e.args?.timestamp) * 1000).toLocaleString()}</div>
-            <div className="mt-2 flex items-center gap-3">
-              <button className="rounded bg-blue-600 text-white px-2 py-1" onClick={()=> like(e)}>Like ({social[keyOf(e)]?.likes || 0})</button>
-              <form onSubmit={(ev)=> { ev.preventDefault(); const v = (ev.currentTarget as any).comment.value.trim(); if (v) { comment(e, v); (ev.currentTarget as any).reset(); } }} className="flex gap-2">
-                <input name="comment" className="border rounded p-1" placeholder="Add comment" />
-                <button className="rounded bg-gray-600 text-white px-2">Post</button>
+          <div key={i} className="card p-4 animate-fadeInUp">
+            <div className="grid sm:grid-cols-2 gap-2 text-sm break-all">
+              <div><span className="text-white/60">From:</span> <span className="font-mono">{e.args?.from}</span></div>
+              <div><span className="text-white/60">To:</span> <span className="font-mono">{e.args?.to}</span></div>
+              <div><span className="text-white/60">Token:</span> <span className="font-mono">{e.args?.token}</span></div>
+              <div><span className="text-white/60">Amount:</span> {formatAmount(e.args?.token as string, e.args?.amount as bigint)}</div>
+              <div className="sm:col-span-2"><span className="text-white/60">Message:</span> {e.args?.message}</div>
+              <div className="text-white/60">{new Date(Number(e.args?.timestamp) * 1000).toLocaleString()}</div>
+            </div>
+            <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:items-center">
+              <button className="btn btn-primary px-3 py-2" onClick={()=> like(e)}>Like ({social[keyOf(e)]?.likes || 0})</button>
+              <form onSubmit={(ev)=> { ev.preventDefault(); const v = (ev.currentTarget as any).comment.value.trim(); if (v) { comment(e, v); (ev.currentTarget as any).reset(); } }} className="flex gap-2 w-full sm:w-auto">
+                <input name="comment" className="input flex-1" placeholder="Add comment" />
+                <button className="btn btn-outline px-3">Post</button>
               </form>
             </div>
             {(social[keyOf(e)]?.comments || []).length > 0 && (
-              <div className="mt-2 space-y-1">
+              <div className="mt-3 space-y-1">
                 {(social[keyOf(e)]?.comments || []).map((c, idx)=> (
-                  <div key={idx} className="text-xs border-l-2 pl-2">{c}</div>
+                  <div key={idx} className="text-xs border-l-2 pl-2 border-white/20">{c}</div>
                 ))}
               </div>
             )}
           </div>
         ))}
-        {events.length === 0 && <div>No events yet.</div>}
+        {events.length === 0 && <div className="text-white/60">No events yet.</div>}
       </div>
-      <div className="flex gap-2">
-        <button disabled={page===0} onClick={()=> setPage((p)=> Math.max(0, p-1))} className="rounded border px-3 py-1">Prev</button>
-        <button disabled={(page+1)*pageSize >= events.length} onClick={()=> setPage((p)=> p+1)} className="rounded border px-3 py-1">Next</button>
+      <div className="flex gap-2 mt-4">
+        <button disabled={page===0} onClick={()=> setPage((p)=> Math.max(0, p-1))} className="btn btn-outline px-3 py-2">Prev</button>
+        <button disabled={(page+1)*pageSize >= events.length} onClick={()=> setPage((p)=> p+1)} className="btn btn-secondary px-3 py-2">Next</button>
       </div>
     </div>
   );

@@ -36,36 +36,41 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] p-4 space-y-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold">Emergency Mode</h2>
-      <div className="space-y-3">
-        <div className="border rounded p-3">
-          <div className="font-medium">Global Emergency</div>
-          <div className="flex gap-2 mt-2">
-            <select className="border rounded p-2" value={String(globalOn)} onChange={(e)=> setGlobalOn(e.target.value === 'true')}>
+    <div className="responsive-container py-6 sm:py-8 max-w-5xl">
+      <div className="mb-6 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">Emergency Mode</span>
+        </h1>
+        <p className="text-white/70">Toggle fee-free mode globally or by region</p>
+      </div>
+      <div className="responsive-grid-2 gap-6">
+        <div className="card p-6 space-y-4 animate-fadeInUp">
+          <div className="font-medium text-white">Global Emergency</div>
+          <div className="flex gap-3">
+            <select className="input sm:w-48" value={String(globalOn)} onChange={(e)=> setGlobalOn(e.target.value === 'true')}>
               <option value="false">Off</option>
               <option value="true">On</option>
             </select>
             <button disabled={isPending || isLoading} onClick={setGlobal} className="btn btn-primary">Set</button>
           </div>
+          {hash && <div className="text-xs break-all">Tx: {hash}</div>}
+          {error && <div className="text-xs text-red-400">{error.message}</div>}
         </div>
-        <div className="border rounded p-3">
-          <div className="font-medium">Region Emergency</div>
-          <input className="border rounded p-2 mt-2 w-full" placeholder="Region (e.g., UG-Kampala)" value={regionCode} onChange={(e)=> setRegionCode(e.target.value)} />
-          <div className="flex gap-2 mt-2">
-            <select className="border rounded p-2" value={String(regionOn)} onChange={(e)=> setRegionOn(e.target.value === 'true')}>
+        <div className="card p-6 space-y-4 animate-fadeInUp" style={{ animationDelay: '150ms' }}>
+          <div className="font-medium text-white">Region Emergency</div>
+          <input className="input w-full" placeholder="Region (e.g., UG-Kampala)" value={regionCode} onChange={(e)=> setRegionCode(e.target.value)} />
+          <div className="flex gap-3">
+            <select className="input sm:w-48" value={String(regionOn)} onChange={(e)=> setRegionOn(e.target.value === 'true')}>
               <option value="false">Off</option>
               <option value="true">On</option>
             </select>
-            <button disabled={isPending || isLoading} onClick={setRegion} className="btn btn-primary">Set</button>
+            <button disabled={isPending || isLoading} onClick={setRegion} className="btn btn-secondary">Set</button>
           </div>
         </div>
-        {hash && <div className="text-sm">Tx: {hash}</div>}
-        {error && <div className="text-sm text-red-600">{error.message}</div>}
       </div>
-      <div className="border rounded p-3 space-y-2">
-        <div className="font-medium">Aid Map (demo markers)</div>
-        <div className="h-[300px]">
+      <div className="card p-6 mt-6 animate-fadeInUp" style={{ animationDelay: '250ms' }}>
+        <div className="font-medium text-white mb-3">Aid Map (demo markers)</div>
+        <div className="h-[320px] rounded-xl overflow-hidden border border-white/10">
           <MapContainer center={[0.3476, 32.5825]} zoom={6} style={{ height: "100%", width: "100%" }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Marker position={[0.3476, 32.5825]}>

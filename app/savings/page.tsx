@@ -43,35 +43,40 @@ export default function SavingsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] p-4 space-y-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold">Savings Circles</h2>
-
-      <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
-        <div className="font-semibold">Step 1 — Create a circle</div>
-        <p className="text-sm opacity-80">Pick an ERC‑20 token, add members, set a contribution and a payout period. Everyone deposits each round; one member receives the pot per round.</p>
-        <div className="grid gap-2">
-          <input className="border rounded p-2 w-full" placeholder="Token address (ERC‑20)" value={token} onChange={(e)=> setToken(e.target.value)} />
-          <input className="border rounded p-2 w-full" placeholder="Members (comma‑separated 0x...)" value={members} onChange={(e)=> setMembers(e.target.value)} />
-          <input className="border rounded p-2 w-full" placeholder="Contribution (e.g. 1)" value={contribution} onChange={(e)=> setContribution(e.target.value)} />
-          <input className="border rounded p-2 w-full" placeholder="Period seconds (≥ 60)" value={period} onChange={(e)=> setPeriod(e.target.value)} />
-        </div>
-        <button disabled={isPending||isLoading} onClick={createCircle} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Create circle</button>
+    <div className="responsive-container py-6 sm:py-8 max-w-3xl">
+      <div className="mb-6 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">Savings Circles</span>
+        </h1>
+        <p className="text-white/70">Trustless group savings with rotating payouts</p>
       </div>
 
-      <div className="rounded-xl border p-4 bg-white/60 dark:bg-black/40 backdrop-blur space-y-3">
-        <div className="font-semibold">Step 2 — Manage the current round</div>
-        <p className="text-sm opacity-80">Enter the Circle ID to deposit your share or trigger payout when the period ends and everyone has deposited.</p>
-        <input className="border rounded p-2 w-full" placeholder="Circle ID" value={circleId} onChange={(e)=> setCircleId(e.target.value)} />
-        <div className="flex gap-2">
-          <button disabled={isPending||isLoading} onClick={deposit} className="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Deposit for this round</button>
-          <button disabled={isPending||isLoading} onClick={payout} className="rounded-lg bg-green-600 text-white px-4 py-2 hover:bg-green-500 transition">Payout to recipient</button>
+      <div className="card p-6 space-y-4 animate-fadeInUp">
+        <div className="font-semibold text-white">Step 1 — Create a circle</div>
+        <p className="text-sm text-white/70">Pick a token, add members, set contribution and payout period.</p>
+        <div className="grid gap-3">
+          <input className="input w-full" placeholder="Token address (ERC‑20)" value={token} onChange={(e)=> setToken(e.target.value)} />
+          <input className="input w-full" placeholder="Members (comma‑separated 0x...)" value={members} onChange={(e)=> setMembers(e.target.value)} />
+          <input className="input w-full" placeholder="Contribution (e.g. 1)" value={contribution} onChange={(e)=> setContribution(e.target.value)} />
+          <input className="input w-full" placeholder="Period seconds (≥ 60)" value={period} onChange={(e)=> setPeriod(e.target.value)} />
         </div>
-        <ul className="text-xs opacity-70 list-disc pl-5 space-y-1">
-          <li>Each member must approve the SavingsCircles contract to spend the token once (in their wallet).</li>
-          <li>Payout becomes available after the period elapses and all deposits are in.</li>
+        <button disabled={isPending||isLoading} onClick={createCircle} className="btn btn-primary">Create circle</button>
+      </div>
+
+      <div className="card p-6 space-y-4 animate-fadeInUp" style={{ animationDelay: '150ms' }}>
+        <div className="font-semibold text-white">Step 2 — Manage the current round</div>
+        <p className="text-sm text-white/70">Deposit your share or trigger payout when eligible.</p>
+        <input className="input w-full" placeholder="Circle ID" value={circleId} onChange={(e)=> setCircleId(e.target.value)} />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button disabled={isPending||isLoading} onClick={deposit} className="btn btn-secondary flex-1">Deposit for this round</button>
+          <button disabled={isPending||isLoading} onClick={payout} className="btn btn-accent flex-1">Payout to recipient</button>
+        </div>
+        <ul className="text-xs text-white/70 list-disc pl-5 space-y-1">
+          <li>Members must approve the contract to spend the token once.</li>
+          <li>Payout available after period elapses and all deposits are in.</li>
         </ul>
         {hash && <div className="text-xs break-all">Tx: {hash}</div>}
-        {error && <div className="text-sm text-red-600">{error.message}</div>}
+        {error && <div className="text-sm text-red-400">{error.message}</div>}
       </div>
     </div>
   );
