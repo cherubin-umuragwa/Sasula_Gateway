@@ -45,7 +45,7 @@ Sasula Gateway is a decentralized, community-first P2P payments and micro‑fina
 - Testnet/Mainnet RPC reliability.
 
 ## 9. Roadmap Summary
-See [Roadmap](../Additional/Roadmap.md) for milestones and timelines. Architectural details in the [Software Architecture Document](../Architecture & Design/Software_Architecture_Document.md).
+See [Roadmap](../additional/Roadmap.md) for milestones and timelines. Architectural details in the [Software Architecture Document](../Architecture & Design/Software_Architecture_Document.md).
 
 ## 10. References
 - Base L2: `https://base.org`
