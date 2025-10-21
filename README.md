@@ -77,7 +77,7 @@ Please read the [Contribution Guide](./docs/additional/Contribution_Guide.md) an
 MIT — see [License & Terms of Use](./docs/Security%20&%20Legal/License_&_Terms_of_Use.md).
 
 ## Contact
-- Email: [To be filled]
+- Email: [cherubinamani09@gmail.com]
 - Website: `https://sasula-gateway.vercel.app`
 
 ## Credits
