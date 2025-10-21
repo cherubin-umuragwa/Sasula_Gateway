@@ -5,7 +5,24 @@ import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faCircle, faCheck, faTimes, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUser,
+  faCircle,
+  faCheck,
+  faTimes,
+  faArrowUp,
+  faArrowDown,
+  faWallet,
+  faStar,
+  faLandmark,
+  faCoins,
+  faPaperPlane,
+  faRss,
+  faPiggyBank,
+  faTriangleExclamation,
+  faMicrophone,
+  faChartLine,
+} from "@fortawesome/free-solid-svg-icons";
 
 function MetricCard({ 
   title, 
@@ -19,7 +36,7 @@ function MetricCard({
   title: string; 
   value: string; 
   subtitle: string; 
-  icon: string;
+  icon: React.ReactNode;
   gradient?: "primary" | "secondary" | "accent";
   delay?: number;
   trend?: { value: string; positive: boolean } | null;
@@ -38,7 +55,7 @@ function MetricCard({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-            <span className="text-xl">{icon}</span>
+            {icon}
           </div>
           <div>
             <h3 className="text-sm font-medium text-white/80">{title}</h3>
@@ -46,7 +63,7 @@ function MetricCard({
               <div className={`flex items-center gap-1 text-xs ${
                 trend.positive ? 'text-green-400' : 'text-red-400'
               }`}>
-                <span>{trend.positive ? '↗' : '↘'}</span>
+                <FontAwesomeIcon icon={trend.positive ? faArrowUp : faArrowDown} className="w-3 h-3" />
                 <span>{trend.value}</span>
               </div>
             )}
@@ -69,7 +86,7 @@ function QuickActionCard({
 }: { 
   title: string; 
   description: string; 
-  icon: string; 
+  icon: React.ReactNode; 
   href: string;
   gradient?: "primary" | "secondary" | "accent";
   delay?: number;
@@ -87,7 +104,7 @@ function QuickActionCard({
         style={{ animationDelay: `${delay}ms` }}
       >
         <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 mb-4 group-hover:scale-110 transition-transform duration-300">
-          <span className="text-2xl">{icon}</span>
+          {icon}
         </div>
         <h3 className="text-lg font-semibold mb-2 text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 group-hover:bg-clip-text transition-all duration-300">
           {title}
@@ -223,7 +240,7 @@ export default function Dashboard() {
           title="Balance"
           value={balance ? `${Number(balance.formatted).toLocaleString(undefined, { maximumFractionDigits: 6 })} ${balance.symbol}` : "-"}
           subtitle="On Base Sepolia"
-          icon="💰"
+          icon={<FontAwesomeIcon icon={faWallet} className="text-xl" />}
           gradient="primary"
           delay={0}
           trend={{ value: "+2.5%", positive: true }}
@@ -232,7 +249,7 @@ export default function Dashboard() {
           title="Reputation Score"
           value={score ? String(score) : "0"}
           subtitle="Grows with transactions & endorsements"
-          icon="⭐"
+          icon={<FontAwesomeIcon icon={faStar} className="text-xl" />}
           gradient="secondary"
           delay={100}
           trend={{ value: "+15", positive: true }}
@@ -241,7 +258,7 @@ export default function Dashboard() {
           title="Max Loan Limit"
           value={limit ? Number(limit).toLocaleString() : "0"}
           subtitle="Based on score & pool size"
-          icon="🏦"
+          icon={<FontAwesomeIcon icon={faLandmark} className="text-xl" />}
           gradient="accent"
           delay={200}
         />
@@ -249,7 +266,7 @@ export default function Dashboard() {
           title="Pool Stake Value"
           value={stakeValue ? Number(stakeValue).toLocaleString() : "0"}
           subtitle="Withdrawable anytime"
-          icon="💎"
+          icon={<FontAwesomeIcon icon={faCoins} className="text-xl" />}
           gradient="primary"
           delay={300}
         />
@@ -264,7 +281,7 @@ export default function Dashboard() {
           <QuickActionCard
             title="Send Money"
             description="Transfer funds instantly to any address with social messages."
-            icon="💸"
+            icon={<FontAwesomeIcon icon={faPaperPlane} className="text-xl" />}
             href="/send"
             gradient="primary"
             delay={0}
@@ -272,7 +289,7 @@ export default function Dashboard() {
           <QuickActionCard
             title="Activity Feed"
             description="View your complete transaction history and social interactions."
-            icon="📊"
+            icon={<FontAwesomeIcon icon={faChartLine} className="text-xl" />}
             href="/feed"
             gradient="secondary"
             delay={100}
@@ -280,7 +297,7 @@ export default function Dashboard() {
           <QuickActionCard
             title="Savings Circles"
             description="Join group savings with rotating payouts and community support."
-            icon="🔄"
+            icon={<FontAwesomeIcon icon={faPiggyBank} className="text-xl" />}
             href="/savings"
             gradient="accent"
             delay={200}
@@ -288,7 +305,7 @@ export default function Dashboard() {
           <QuickActionCard
             title="Reputation"
             description="Build your score, fund pools, and access micro-loans."
-            icon="⭐"
+            icon={<FontAwesomeIcon icon={faStar} className="text-xl" />}
             href="/reputation"
             gradient="primary"
             delay={300}
@@ -296,7 +313,7 @@ export default function Dashboard() {
           <QuickActionCard
             title="Emergency"
             description="Toggle fee-free mode and access emergency relief features."
-            icon="🚨"
+            icon={<FontAwesomeIcon icon={faTriangleExclamation} className="text-xl" />}
             href="/emergency"
             gradient="secondary"
             delay={400}
@@ -304,7 +321,7 @@ export default function Dashboard() {
           <QuickActionCard
             title="Voice Payments"
             description="Send payments using voice commands for accessibility."
-            icon="🎤"
+            icon={<FontAwesomeIcon icon={faMicrophone} className="text-xl" />}
             href="/voice"
             gradient="accent"
             delay={500}

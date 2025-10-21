@@ -7,7 +7,18 @@ import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { TOKENS } from "@/lib/tokenlist";
 import { useSearchParams, useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faQrcode, faUsers, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faCopy, 
+  faQrcode, 
+  faUsers, 
+  faCheck, 
+  faTimes, 
+  faBolt, 
+  faCoins, 
+  faLightbulb, 
+  faComment, 
+  faCircle 
+} from "@fortawesome/free-solid-svg-icons";
 
 function TokenSelector({ 
   token, 
@@ -33,7 +44,9 @@ function TokenSelector({
                 : "border-white/20 bg-white/5 text-white/60 hover:border-white/30"
             }`}
           >
-            <div className="text-2xl mb-2">⚡</div>
+            <div className="text-2xl mb-2">
+              <FontAwesomeIcon icon={faBolt} />
+            </div>
             <div className="font-semibold">ETH</div>
             <div className="text-xs opacity-70">Native Token</div>
           </button>
@@ -45,7 +58,9 @@ function TokenSelector({
                 : "border-white/20 bg-white/5 text-white/60 hover:border-white/30"
             }`}
           >
-            <div className="text-2xl mb-2">🪙</div>
+            <div className="text-2xl mb-2">
+              <FontAwesomeIcon icon={faCoins} />
+            </div>
             <div className="font-semibold">ERC-20</div>
             <div className="text-xs opacity-70">Tokens</div>
           </button>
@@ -143,7 +158,7 @@ function RecipientInput({
         onChange={(e) => setTo(e.target.value)} 
       />
       <div className="flex items-center gap-2 text-xs text-white/60">
-        <span>💡</span>
+        <FontAwesomeIcon icon={faLightbulb} />
         <span>You can also scan a QR code or paste from clipboard</span>
       </div>
     </div>
@@ -168,7 +183,7 @@ function MessageInput({
         maxLength={100}
       />
       <div className="flex justify-between text-xs text-white/60">
-        <span>💬 Social payments with messages</span>
+        <span className="inline-flex items-center gap-2"><FontAwesomeIcon icon={faComment} /> Social payments with messages</span>
         <span>{message.length}/100</span>
       </div>
     </div>
@@ -339,8 +354,8 @@ export default function SendPage() {
             {hash && (
               <div className="card p-4 bg-green-500/10 border border-green-500/20 animate-fadeInUp">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <span className="text-green-400">✓</span>
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                    <FontAwesomeIcon icon={faCheck} />
                   </div>
                   <div>
                     <div className="text-white font-medium">Transaction Submitted</div>
@@ -353,8 +368,8 @@ export default function SendPage() {
             {error && (
               <div className="card p-4 bg-red-500/10 border border-red-500/20 animate-fadeInUp">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                    <span className="text-red-400">✗</span>
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
+                    <FontAwesomeIcon icon={faTimes} />
                   </div>
                   <div>
                     <div className="text-white font-medium">Transaction Failed</div>
@@ -448,10 +463,10 @@ export default function SendPage() {
           <div className="card p-6 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 animate-fadeInUp" style={{ animationDelay: '300ms' }}>
             <h3 className="text-lg font-semibold text-white mb-4">Tips</h3>
             <div className="space-y-2 text-sm text-white/70">
-              <div>• Double-check the recipient address</div>
-              <div>• Add a message for social payments</div>
-              <div>• Keep some ETH for gas fees</div>
-              <div>• Use QR codes for quick payments</div>
+              <div className="flex items-center gap-2"><FontAwesomeIcon icon={faCircle} className="text-[6px]" /> Double-check the recipient address</div>
+              <div className="flex items-center gap-2"><FontAwesomeIcon icon={faCircle} className="text-[6px]" /> Add a message for social payments</div>
+              <div className="flex items-center gap-2"><FontAwesomeIcon icon={faCircle} className="text-[6px]" /> Keep some ETH for gas fees</div>
+              <div className="flex items-center gap-2"><FontAwesomeIcon icon={faCircle} className="text-[6px]" /> Use QR codes for quick payments</div>
             </div>
           </div>
         </div>
