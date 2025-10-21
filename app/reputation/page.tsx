@@ -283,24 +283,12 @@ function PoolSection({
 function ReputationInfo() {
   return (
     <div className="card p-6 bg-gradient-to-br from-purple-500/10 to-pink-600/10 border border-purple-500/20 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
-      <h3 className="text-lg font-semibold text-white mb-4">📚 How Reputation Works</h3>
+      <h3 className="text-lg font-semibold text-white mb-4">How Reputation Works</h3>
       <div className="space-y-3 text-sm text-white/70">
-        <div className="flex items-start gap-3">
-          <span className="text-green-400">•</span>
-          <span>Send and receive payments to increase your score</span>
-        </div>
-        <div className="flex items-start gap-3">
-          <span className="text-blue-400">•</span>
-          <span>Get endorsed by trusted community members</span>
-        </div>
-        <div className="flex items-start gap-3">
-          <span className="text-purple-400">•</span>
-          <span>Fund the community pool for reputation boost</span>
-        </div>
-        <div className="flex items-start gap-3">
-          <span className="text-yellow-400">•</span>
-          <span>Higher scores unlock larger micro-loan limits</span>
-        </div>
+        <div className="flex items-start gap-3"><span className="text-green-400">—</span><span>Send and receive payments to increase your score</span></div>
+        <div className="flex items-start gap-3"><span className="text-blue-400">—</span><span>Get endorsed by trusted community members</span></div>
+        <div className="flex items-start gap-3"><span className="text-purple-400">—</span><span>Fund the community pool for reputation boost</span></div>
+        <div className="flex items-start gap-3"><span className="text-yellow-400">—</span><span>Higher scores unlock larger micro-loan limits</span></div>
       </div>
     </div>
   );
