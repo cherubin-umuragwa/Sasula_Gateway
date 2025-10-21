@@ -4,12 +4,11 @@ import repAbi from "@/lib/abis/SocialReputation.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
   faCircle,
-  faCheck,
-  faTimes,
   faArrowUp,
   faArrowDown,
   faWallet,
@@ -36,7 +35,7 @@ function MetricCard({
   title: string; 
   value: string; 
   subtitle: string; 
-  icon: React.ReactNode;
+  icon: ReactNode;
   gradient?: "primary" | "secondary" | "accent";
   delay?: number;
   trend?: { value: string; positive: boolean } | null;
@@ -86,7 +85,7 @@ function QuickActionCard({
 }: { 
   title: string; 
   description: string; 
-  icon: React.ReactNode; 
+  icon: ReactNode; 
   href: string;
   gradient?: "primary" | "secondary" | "accent";
   delay?: number;
