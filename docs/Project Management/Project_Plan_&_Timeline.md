@@ -10,7 +10,7 @@
 - M5: Security Review & Mainnet Planning
 
 ## Timeline
-- [To be filled after confirming resourcing]
+- [To be filled]
 
 ## Dependencies
 - Base RPC, wallet infrastructure, CI/CD
