@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, useSendTransaction } from "wagmi";
 import { parseEther, erc20Abi } from "viem";
 import routerAbi from "@/lib/abis/PaymentRouter.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
@@ -245,6 +245,7 @@ export default function SendPage() {
   const [message, setMessage] = useState("");
   const [token, setToken] = useState<"ETH" | "ERC20">("ETH");
   const [tokenAddress, setTokenAddress] = useState(CONTRACT_ADDRESSES.miniToken);
+  const [circuitBreakerOpen, setCircuitBreakerOpen] = useState(false);
 
   useEffect(() => {
     const qpTo = params.get("to");
@@ -259,8 +260,16 @@ export default function SendPage() {
     if (qpTokenAddress) setTokenAddress(qpTokenAddress as `0x${string}`);
   }, [params]);
 
-  const { writeContract, data: hash, isPending, error } = useWriteContract();
-  const { isLoading: isMining, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { writeContract, data: contractTxHash, isPending, error } = useWriteContract();
+  const { isLoading: isMiningContract, isSuccess: isSuccessContract } = useWaitForTransactionReceipt({ hash: contractTxHash });
+
+  // Fallback: direct wallet transfer for ETH when contract call is blocked by circuit breaker
+  const { sendTransaction, data: directTxHash, isPending: isPendingDirect } = useSendTransaction();
+  const { isLoading: isMiningDirect, isSuccess: isSuccessDirect } = useWaitForTransactionReceipt({ hash: directTxHash });
+
+  const anyTxHash = useMemo(() => contractTxHash || directTxHash, [contractTxHash, directTxHash]);
+  const isMining = isMiningContract || isMiningDirect;
+  const isSuccess = isSuccessContract || isSuccessDirect;
 
   const { data: allowance } = useReadContract({
     address: tokenAddress as `0x${string}`,
@@ -303,7 +312,61 @@ export default function SendPage() {
     }
   }
 
-  const isDisabled = isPending || isMining || isApproveMining || !amount || !to || !address;
+  function onSendDirect() {
+    // Direct native transfer bypasses the contract if circuit breaker is open
+    sendTransaction({
+      to: to as `0x${string}`,
+      value: parseEther(amount || "0"),
+    });
+  }
+
+  // Detect circuit breaker style reverts and offer a direct-send fallback
+  useEffect(() => {
+    if (!error) {
+      setCircuitBreakerOpen(false);
+      return;
+    }
+    const msg = error.message || "";
+    const hitCircuit = /circuit\s*breaker|paused|prevented/i.test(msg);
+    setCircuitBreakerOpen(hitCircuit);
+  }, [error]);
+
+  // After success, deep link back to Sasula app (mobile) or route in web
+  useEffect(() => {
+    if (!isSuccess || !anyTxHash) return;
+    const deeplinkBase = process.env.NEXT_PUBLIC_SASULA_DEEPLINK;
+    const webUrl = process.env.NEXT_PUBLIC_SASULA_WEB_URL || "https://sasula-gateway.vercel.app";
+    const query = new URLSearchParams({
+      hash: anyTxHash,
+      to,
+      amount,
+      message,
+      token,
+    }).toString();
+
+    if (deeplinkBase) {
+      // Attempt native deep link first, then fall back to web URL
+      const target = `${deeplinkBase.replace(/\/$/, "")}/tx?${query}`;
+      const fallback = `${webUrl.replace(/\/$/, "")}/tx?${query}`;
+      try {
+        window.location.href = target;
+        // Fallback in case deep link is not handled
+        setTimeout(() => {
+          try {
+            if (!document.hidden) {
+              window.location.href = fallback;
+            }
+          } catch {}
+        }, 1200);
+      } catch {
+        router.push(`/feed?tx=${anyTxHash}`);
+      }
+    } else {
+      router.push(`/feed?tx=${anyTxHash}`);
+    }
+  }, [isSuccess, anyTxHash, amount, message, router, to, token]);
+
+  const isDisabled = isPending || isPendingDirect || isMining || isApproveMining || !amount || !to || !address;
 
   return (
     <div className="responsive-container py-6 sm:py-8">
@@ -351,7 +414,7 @@ export default function SendPage() {
               )}
             </button>
 
-            {hash && (
+            {anyTxHash && (
               <div className="card p-4 bg-green-500/10 border border-green-500/20 animate-fadeInUp">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
@@ -359,7 +422,7 @@ export default function SendPage() {
                   </div>
                   <div>
                     <div className="text-white font-medium">Transaction Submitted</div>
-                    <div className="text-white/60 text-sm font-mono break-all">{hash}</div>
+                    <div className="text-white/60 text-sm font-mono break-all">{anyTxHash}</div>
                   </div>
                 </div>
               </div>
@@ -374,6 +437,20 @@ export default function SendPage() {
                   <div>
                     <div className="text-white font-medium">Transaction Failed</div>
                     <div className="text-white/60 text-sm">{error.message}</div>
+                    {circuitBreakerOpen && token === "ETH" && (
+                      <div className="mt-3">
+                        <button
+                          onClick={onSendDirect}
+                          disabled={isPendingDirect || !amount || !to || !address}
+                          className="btn btn-secondary"
+                        >
+                          {isMiningDirect ? "Sending via Wallet..." : "Send Directly (Wallet)"}
+                        </button>
+                        <div className="text-xs text-white/50 mt-2">
+                          Contract is temporarily blocked. This fallback sends ETH directly to the recipient via your wallet.
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
