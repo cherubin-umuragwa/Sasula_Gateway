@@ -76,26 +76,44 @@ export default function QRPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">QR Payments</h2>
-      <div className="grid gap-2">
-        <input className="border rounded p-2" placeholder="Recipient 0x..." value={address} onChange={(e)=> setAddress(e.target.value)} />
-        <input className="border rounded p-2" placeholder="Amount (ETH)" value={amount} onChange={(e)=> setAmount(e.target.value)} />
-        <input className="border rounded p-2" placeholder="Message" value={message} onChange={(e)=> setMessage(e.target.value)} />
-        <select className="border rounded p-2" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value)}>
-          <option value="">(Optional) ERC‑20 token from list...</option>
-          {TOKENS.filter(t=> t.address !== "0x0000000000000000000000000000000000000000").map(t=> (
-            <option key={t.symbol} value={t.address}>{t.symbol} - {t.name}</option>
-          ))}
-        </select>
-        <button onClick={generate} className="rounded bg-blue-600 text-white px-3 py-2">Generate QR</button>
-        {qr && <img src={qr} className="w-48 h-48" alt="qr" />}
+    <div className="responsive-container py-6 sm:py-8">
+      <div className="mb-8 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">QR Payments</span>
+        </h1>
+        <p className="text-white/70">Generate or scan a QR to prefill payments</p>
       </div>
-      <div className="border rounded p-3">
-        <div className="font-medium mb-2">Scan QR</div>
-        <video ref={videoRef} className="w-full max-h-64 rounded" />
-        <div className="mt-2 flex gap-2">
-          <button onClick={startScan} className="btn btn-primary">Start scan</button>
+
+      <div className="responsive-grid-2 gap-8">
+        {/* Generator */}
+        <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '100ms' }}>
+          <h3 className="text-lg font-semibold text-white mb-4">Generate Payment QR</h3>
+          <div className="space-y-4">
+            <input className="input" placeholder="Recipient 0x..." value={address} onChange={(e)=> setAddress(e.target.value)} />
+            <input className="input" placeholder="Amount (ETH)" value={amount} onChange={(e)=> setAmount(e.target.value)} />
+            <input className="input" placeholder="Message" value={message} onChange={(e)=> setMessage(e.target.value)} />
+            <select className="input" value={tokenAddress} onChange={(e)=> setTokenAddress(e.target.value)}>
+              <option value="">(Optional) ERC‑20 token from list...</option>
+              {TOKENS.filter(t=> t.address !== "0x0000000000000000000000000000000000000000").map(t=> (
+                <option key={t.symbol} value={t.address}>{t.symbol} - {t.name}</option>
+              ))}
+            </select>
+            <button onClick={generate} className="btn btn-primary w-full">Generate QR</button>
+            {qr && (
+              <div className="flex justify-center pt-4">
+                <img src={qr} className="w-48 h-48 rounded-xl border border-white/10" alt="qr" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Scanner */}
+        <div className="card p-6 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
+          <h3 className="text-lg font-semibold text-white mb-4">Scan Payment QR</h3>
+          <div className="space-y-3">
+            <video ref={videoRef} className="w-full max-h-64 rounded-xl border border-white/10" />
+            <button onClick={startScan} className="btn btn-secondary w-full">Start scan</button>
+          </div>
         </div>
       </div>
     </div>

@@ -51,26 +51,45 @@ export default function VoicePage() {
   }, [transcript]);
 
   if (!browserSupportsSpeechRecognition) {
-    return <div className="p-4">Browser does not support speech recognition.</div>;
+    return (
+      <div className="responsive-container py-6 sm:py-8">
+        <div className="card p-6">
+          <div className="text-white/80">Browser does not support speech recognition.</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">Voice Payments</h2>
-      <div className="flex gap-2">
-        <select className="border rounded p-2" value={lang} onChange={(e)=> setLang(e.target.value)}>
-          <option value="en-US">English</option>
-          <option value="sw-TZ">Swahili (Tanzania)</option>
-          <option value="fr-FR">French</option>
-        </select>
-        {!listening ? (
-          <button onClick={start} className="rounded bg-blue-600 text-white px-3 py-2">Start</button>
-        ) : (
-          <button onClick={stop} className="rounded bg-red-600 text-white px-3 py-2">Stop</button>
+    <div className="responsive-container py-6 sm:py-8">
+      <div className="mb-6 animate-fadeInLeft">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+          <span className="text-gradient">Voice Payments</span>
+        </h1>
+        <p className="text-white/70">Send ETH with natural voice commands</p>
+      </div>
+      <div className="card p-6 space-y-4 animate-fadeInUp">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select className="input sm:w-60" value={lang} onChange={(e)=> setLang(e.target.value)}>
+            <option value="en-US">English</option>
+            <option value="sw-TZ">Swahili (Tanzania)</option>
+            <option value="fr-FR">French</option>
+          </select>
+          {!listening ? (
+            <button onClick={start} className="btn btn-primary sm:w-40">Start</button>
+          ) : (
+            <button onClick={stop} className="btn btn-secondary sm:w-40">Stop</button>
+          )}
+        </div>
+        <div className="input whitespace-pre-wrap text-sm min-h-[120px]">
+          {transcript || "Say: send 0.01 to 0x... message hello"}
+        </div>
+        {hash && (
+          <div className="card p-4 bg-green-500/10 border border-green-500/20">
+            <div className="text-sm">Tx: {hash}</div>
+          </div>
         )}
       </div>
-      <div className="border rounded p-3 whitespace-pre-wrap text-sm min-h-[100px]">{transcript || "Say: send 0.01 to 0x... message hello"}</div>
-      {hash && <div className="text-sm">Tx: {hash}</div>}
     </div>
   );
 }
