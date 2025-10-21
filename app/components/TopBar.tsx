@@ -83,6 +83,7 @@ export default function TopBar() {
           </div>
         </div>
       </div>
+      </div>
     </header>
   );
 }
