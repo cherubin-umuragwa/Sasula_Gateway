@@ -364,7 +364,7 @@ export default function ReputationPage() {
   }, [allowanceReady, currentAllowance, fundUnits]);
 
   return (
-    <div className="responsive-container py-6 sm:py-8 max-h-[calc(100vh-120px)] overflow-y-auto">
+    <div className="responsive-container py-6 sm:py-8">
       {/* Header */}
       <div className="mb-8 animate-fadeInLeft">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">
