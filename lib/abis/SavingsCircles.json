@@ -1,6 +1,70 @@
-[
-  {"type":"function","name":"createCircle","stateMutability":"nonpayable","inputs":[{"name":"token","type":"address"},{"name":"members","type":"address[]"},{"name":"contribution","type":"uint256"},{"name":"periodSeconds","type":"uint256"}],"outputs":[{"type":"uint256"}]},
-  {"type":"function","name":"deposit","stateMutability":"nonpayable","inputs":[{"name":"id","type":"uint256"}],"outputs":[]},
-  {"type":"function","name":"payout","stateMutability":"nonpayable","inputs":[{"name":"id","type":"uint256"}],"outputs":[]},
-  {"type":"function","name":"getCircle","stateMutability":"view","inputs":[{"name":"id","type":"uint256"}],"outputs":[{"type":"address"},{"type":"address"},{"type":"uint256"},{"type":"uint256"},{"type":"address[]"},{"type":"uint256"},{"type":"uint256"},{"type":"uint256"},{"type":"bool"}]}
-]
+{
+  "abi": [
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "organizer", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "token", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "contribution", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "period", "type": "uint256" },
+      { "indexed": false, "internalType": "address[]", "name": "members", "type": "address[]" }
+    ], "name": "CircleCreated", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "completedRound", "type": "uint256" }
+    ], "name": "CycleCompleted", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": true, "internalType": "uint256", "name": "round", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "member", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ], "name": "Deposited", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "newMember", "type": "address" }
+    ], "name": "MemberJoined", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": false, "internalType": "bool", "name": "open", "type": "bool" }
+    ], "name": "OpenToJoinSet", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": true, "internalType": "uint256", "name": "round", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ], "name": "Payout", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "nextPayoutTime", "type": "uint256" }
+    ], "name": "Restarted", "type": "event" },
+    { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" }
+    ], "name": "Terminated", "type": "event" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "canPayout", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" },
+    { "inputs": [
+      { "internalType": "contract IERC20", "name": "token", "type": "address" },
+      { "internalType": "address[]", "name": "members", "type": "address[]" },
+      { "internalType": "uint256", "name": "contribution", "type": "uint256" },
+      { "internalType": "uint256", "name": "periodSeconds", "type": "uint256" }
+    ], "name": "createCircle", "outputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "deposit", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "getCircle", "outputs": [
+      { "internalType": "address", "name": "organizer", "type": "address" },
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "contribution", "type": "uint256" },
+      { "internalType": "uint256", "name": "periodSeconds", "type": "uint256" },
+      { "internalType": "address[]", "name": "members", "type": "address[]" },
+      { "internalType": "uint256", "name": "currentIndex", "type": "uint256" },
+      { "internalType": "uint256", "name": "nextPayoutTime", "type": "uint256" },
+      { "internalType": "uint256", "name": "round", "type": "uint256" },
+      { "internalType": "bool", "name": "active", "type": "bool" },
+      { "internalType": "bool", "name": "openToJoin", "type": "bool" }
+    ], "stateMutability": "view", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "joinCircle", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [], "name": "nextId", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "payout", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "restart", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" }, { "internalType": "bool", "name": "open", "type": "bool" } ], "name": "setOpenToJoin", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ], "name": "terminate", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [], "name": "totalCircles", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }
+  ]
+}

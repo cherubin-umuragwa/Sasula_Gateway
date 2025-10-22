@@ -24,6 +24,7 @@ contract SavingsCircles {
         mapping(uint256 => mapping(address => bool)) hasDepositedForRound; // round -> member -> deposited
         uint256 round; // increments each payout
         bool active;
+        bool openToJoin; // true when a cycle completed and membership can change
     }
 
     uint256 public nextId = 1;
@@ -32,6 +33,11 @@ contract SavingsCircles {
     event CircleCreated(uint256 indexed id, address indexed organizer, address token, uint256 contribution, uint256 period, address[] members);
     event Deposited(uint256 indexed id, uint256 indexed round, address indexed member, uint256 amount);
     event Payout(uint256 indexed id, uint256 indexed round, address indexed recipient, uint256 amount);
+    event MemberJoined(uint256 indexed id, address indexed newMember);
+    event OpenToJoinSet(uint256 indexed id, bool open);
+    event Restarted(uint256 indexed id, uint256 nextPayoutTime);
+    event Terminated(uint256 indexed id);
+    event CycleCompleted(uint256 indexed id, uint256 completedRound);
 
     function createCircle(IERC20 token, address[] calldata members, uint256 contribution, uint256 periodSeconds) external returns (uint256 id) {
         require(address(token) != address(0), "token=0");
@@ -50,6 +56,7 @@ contract SavingsCircles {
         c.nextPayoutTime = block.timestamp + periodSeconds;
         c.round = 0;
         c.active = true;
+        c.openToJoin = false;
 
         emit CircleCreated(id, msg.sender, address(token), contribution, periodSeconds, members);
     }
@@ -63,7 +70,8 @@ contract SavingsCircles {
         uint256 currentIndex,
         uint256 nextPayoutTime,
         uint256 round,
-        bool active
+        bool active,
+        bool openToJoin
     ) {
         Circle storage c = circles[id];
         organizer = c.organizer;
@@ -75,12 +83,19 @@ contract SavingsCircles {
         nextPayoutTime = c.nextPayoutTime;
         round = c.round;
         active = c.active;
+        openToJoin = c.openToJoin;
+    }
+
+    function totalCircles() external view returns (uint256) {
+        if (nextId == 0) return 0; // shouldn't happen
+        return nextId - 1;
     }
 
     function deposit(uint256 id) external {
         Circle storage c = circles[id];
         require(c.active, "inactive");
         require(_isMember(c, msg.sender), "not member");
+        require(!c.openToJoin, "join window open");
         require(!c.hasDepositedForRound[c.round][msg.sender], "already");
         require(c.token.transferFrom(msg.sender, address(this), c.contribution), "transferFrom fail");
         c.hasDepositedForRound[c.round][msg.sender] = true;
@@ -109,7 +124,64 @@ contract SavingsCircles {
         // advance state
         c.round += 1;
         c.currentIndex = (c.currentIndex + 1) % c.members.length;
+        // If a cycle just completed, open join window and pause schedule
+        if (c.currentIndex == 0) {
+            c.openToJoin = true;
+            c.nextPayoutTime = 0;
+            emit CycleCompleted(id, c.round);
+            emit OpenToJoinSet(id, true);
+        } else {
+            c.nextPayoutTime = block.timestamp + c.periodSeconds;
+        }
+    }
+
+    function setOpenToJoin(uint256 id, bool open) external {
+        Circle storage c = circles[id];
+        require(msg.sender == c.organizer, "not organizer");
+        require(c.active, "inactive");
+        // Only allow opening when at cycle boundary
+        if (open) {
+            require(c.currentIndex == 0, "not boundary");
+        }
+        c.openToJoin = open;
+        // When opening, pause schedule; when closing via restart, schedule is set separately
+        if (open) {
+            c.nextPayoutTime = 0;
+        }
+        emit OpenToJoinSet(id, open);
+    }
+
+    function joinCircle(uint256 id) external {
+        Circle storage c = circles[id];
+        require(c.active, "inactive");
+        require(c.openToJoin, "not open");
+        require(!_isMember(c, msg.sender), "already member");
+        // Safe to join only at cycle boundary: currentIndex must be 0
+        require(c.currentIndex == 0, "not boundary");
+        c.members.push(msg.sender);
+        emit MemberJoined(id, msg.sender);
+    }
+
+    function restart(uint256 id) external {
+        Circle storage c = circles[id];
+        require(c.active, "inactive");
+        require(msg.sender == c.organizer, "not organizer");
+        // Must be at cycle boundary to restart
+        require(c.currentIndex == 0, "not boundary");
+        // Close join window and set next payout schedule
+        c.openToJoin = false;
         c.nextPayoutTime = block.timestamp + c.periodSeconds;
+        emit OpenToJoinSet(id, false);
+        emit Restarted(id, c.nextPayoutTime);
+    }
+
+    function terminate(uint256 id) external {
+        Circle storage c = circles[id];
+        require(msg.sender == c.organizer, "not organizer");
+        // Safer to terminate only at boundary (everybody got their payout)
+        require(c.currentIndex == 0, "not boundary");
+        c.active = false;
+        emit Terminated(id);
     }
 
     function _isMember(Circle storage c, address a) internal view returns (bool) {
