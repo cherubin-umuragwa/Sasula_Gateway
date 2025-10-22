@@ -24,6 +24,13 @@ export default function SavingsPage() {
     args: [],
   });
 
+  const { data: nextId } = useReadContract({
+    address: CONTRACT_ADDRESSES.savingsCircles as `0x${string}`,
+    abi: scAbi as any,
+    functionName: "nextId",
+    args: [],
+  });
+
   const ids = useMemo(() => {
     const n = Number(totalCircles || 0);
     return Array.from({ length: n }, (_, i) => i + 1);
@@ -106,9 +113,9 @@ export default function SavingsPage() {
 
   useEffect(() => {
     if (!hash) return;
-    // Very simple heuristic: first circle id increments from 1
-    setCreatedId(1);
-  }, [hash]);
+    const n = Number(nextId || 0);
+    if (n > 0) setCreatedId(n - 1);
+  }, [hash, nextId]);
 
   useEffect(() => {
     if (!autoPayout) return;
