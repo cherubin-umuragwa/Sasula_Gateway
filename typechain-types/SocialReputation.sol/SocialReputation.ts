@@ -28,18 +28,22 @@ export interface SocialReputationInterface extends Interface {
     nameOrSignature:
       | "admin"
       | "borrow"
+      | "currentEpoch"
       | "endorse"
       | "fundPool"
-      | "fundingPoints1e18"
+      | "fundingBonus"
+      | "fundingBonusEpoch"
       | "getScore"
       | "getUserStakeValue"
       | "interestBps"
       | "isAuthorizedCaller"
       | "loanToken"
       | "maxBorrowable"
+      | "metricsEpoch"
       | "outstandingDebt"
       | "repay"
       | "reportPayment"
+      | "resetAllReputation"
       | "selfEndorse"
       | "setAuthorizedCaller"
       | "totalPool"
@@ -68,6 +72,10 @@ export interface SocialReputationInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "currentEpoch",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "endorse",
     values: [AddressLike]
   ): string;
@@ -76,7 +84,11 @@ export interface SocialReputationInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "fundingPoints1e18",
+    functionFragment: "fundingBonus",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fundingBonusEpoch",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -101,6 +113,10 @@ export interface SocialReputationInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "metricsEpoch",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "outstandingDebt",
     values: [AddressLike]
   ): string;
@@ -108,6 +124,10 @@ export interface SocialReputationInterface extends Interface {
   encodeFunctionData(
     functionFragment: "reportPayment",
     values: [AddressLike, AddressLike, AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "resetAllReputation",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "selfEndorse",
@@ -141,10 +161,18 @@ export interface SocialReputationInterface extends Interface {
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "currentEpoch",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "endorse", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fundPool", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "fundingPoints1e18",
+    functionFragment: "fundingBonus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fundingBonusEpoch",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getScore", data: BytesLike): Result;
@@ -166,12 +194,20 @@ export interface SocialReputationInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "metricsEpoch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "outstandingDebt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reportPayment",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "resetAllReputation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -376,11 +412,15 @@ export interface SocialReputation extends BaseContract {
 
   borrow: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
+  currentEpoch: TypedContractMethod<[], [bigint], "view">;
+
   endorse: TypedContractMethod<[target: AddressLike], [void], "nonpayable">;
 
   fundPool: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
-  fundingPoints1e18: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  fundingBonus: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  fundingBonusEpoch: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   getScore: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
@@ -398,6 +438,8 @@ export interface SocialReputation extends BaseContract {
 
   maxBorrowable: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
+  metricsEpoch: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
   outstandingDebt: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   repay: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
@@ -412,6 +454,8 @@ export interface SocialReputation extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  resetAllReputation: TypedContractMethod<[], [void], "nonpayable">;
 
   selfEndorse: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -452,13 +496,19 @@ export interface SocialReputation extends BaseContract {
     nameOrSignature: "borrow"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "currentEpoch"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "endorse"
   ): TypedContractMethod<[target: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "fundPool"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "fundingPoints1e18"
+    nameOrSignature: "fundingBonus"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "fundingBonusEpoch"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "getScore"
@@ -479,6 +529,9 @@ export interface SocialReputation extends BaseContract {
     nameOrSignature: "maxBorrowable"
   ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "metricsEpoch"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "outstandingDebt"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
@@ -496,6 +549,9 @@ export interface SocialReputation extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "resetAllReputation"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "selfEndorse"
   ): TypedContractMethod<[], [void], "nonpayable">;
