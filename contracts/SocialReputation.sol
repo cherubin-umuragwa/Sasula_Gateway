@@ -16,6 +16,9 @@ contract SocialReputation {
     address public immutable admin;
     IERC20 public immutable loanToken; // e.g., USDC on Base Sepolia
 
+    // Global epoch to allow admin to reset reputation across all users
+    uint256 public currentEpoch = 1;
+
     // Authorized callers (e.g., PaymentRouter) that can report payments
     mapping(address => bool) public isAuthorizedCaller;
 
@@ -23,11 +26,15 @@ contract SocialReputation {
         uint256 sentCount;
         uint256 receivedCount;
         uint256 volume; // sum of amounts across tokens normalized 1e18 by caller
-        uint256 endorsements; // number of unique endorsements
-        mapping(address => bool) hasEndorsed;
+        uint256 endorsements; // number of unique endorsements (for current epoch)
+        // Track endorsements per epoch to allow re-endorsement after resets
+        mapping(uint256 => mapping(address => bool)) hasEndorsed; // epoch -> endorser -> bool
     }
 
     mapping(address => Metrics) private userMetrics;
+    // For counters (sent/received/volume/endorsements), track which epoch a user's
+    // metrics are aligned to. If stale, we reset on first write in new epoch.
+    mapping(address => uint256) public metricsEpoch;
 
     // Pool accounting using shares (proportional claims)
     uint256 public totalPool; // total token balance managed by the pool
@@ -38,8 +45,9 @@ contract SocialReputation {
     mapping(address => uint256) public outstandingDebt; // principal owed
     uint256 public interestBps = 200; // 2% flat interest per loan (for demo)
 
-    // Reputation boosts for funding
-    mapping(address => uint256) public fundingPoints1e18;
+    // Reputation boosts for funding: flat bonuses per funding action in current epoch
+    mapping(address => uint256) public fundingBonus; // additive to score (per epoch)
+    mapping(address => uint256) public fundingBonusEpoch;
 
     event AuthorizedCaller(address indexed caller, bool allowed);
     event PaymentReported(address indexed from, address indexed to, address token, uint256 amount);
@@ -65,6 +73,18 @@ contract SocialReputation {
         loanToken = _loanToken;
     }
 
+    // Internal: reset user metrics if their epoch is stale
+    function _syncUserEpoch(address user) internal {
+        if (metricsEpoch[user] != currentEpoch) {
+            Metrics storage m = userMetrics[user];
+            m.sentCount = 0;
+            m.receivedCount = 0;
+            m.volume = 0;
+            m.endorsements = 0;
+            metricsEpoch[user] = currentEpoch;
+        }
+    }
+
     // --- Reputation core ---
     function setAuthorizedCaller(address caller, bool allowed) external onlyAdmin {
         isAuthorizedCaller[caller] = allowed;
@@ -73,6 +93,8 @@ contract SocialReputation {
 
     // Caller should normalize `amount` to 1e18 scale for fair scoring
     function reportPayment(address from, address to, address token, uint256 amountNormalized1e18) external onlyAuthorized {
+        _syncUserEpoch(from);
+        _syncUserEpoch(to);
         Metrics storage mf = userMetrics[from];
         Metrics storage mt = userMetrics[to];
         unchecked {
@@ -85,28 +107,34 @@ contract SocialReputation {
     }
 
     function endorse(address target) external {
+        _syncUserEpoch(target);
         Metrics storage m = userMetrics[target];
-        require(!m.hasEndorsed[msg.sender], "Already endorsed");
-        m.hasEndorsed[msg.sender] = true;
+        require(!m.hasEndorsed[currentEpoch][msg.sender], "Already endorsed");
+        m.hasEndorsed[currentEpoch][msg.sender] = true;
         unchecked { m.endorsements += 1; }
         emit Endorsed(msg.sender, target);
     }
 
     function unendorse(address target) external {
+        _syncUserEpoch(target);
         Metrics storage m = userMetrics[target];
-        require(m.hasEndorsed[msg.sender], "Not endorsed");
-        m.hasEndorsed[msg.sender] = false;
+        require(m.hasEndorsed[currentEpoch][msg.sender], "Not endorsed");
+        m.hasEndorsed[currentEpoch][msg.sender] = false;
         unchecked { m.endorsements -= 1; }
         emit Unendorsed(msg.sender, target);
     }
 
     function getScore(address user) public view returns (uint256) {
-        Metrics storage m = userMetrics[user];
-        // Simple weighted scoring: counts + endorsements + volume factor
-        // Weights chosen for demo purposes
-        uint256 score = m.sentCount * 2 + m.receivedCount * 1 + m.endorsements * 10 + m.volume / 1e20; // volume dampened
-        // Add funding contribution as reputation (dampened)
-        score += fundingPoints1e18[user] / 1e20; // smaller weight
+        uint256 score = 0;
+        if (metricsEpoch[user] == currentEpoch) {
+            Metrics storage m = userMetrics[user];
+            // Simple weighted scoring: counts + endorsements + volume factor
+            // Weights chosen for demo purposes
+            score = m.sentCount * 2 + m.receivedCount * 1 + m.endorsements * 10 + m.volume / 1e20; // volume dampened
+        }
+        if (fundingBonusEpoch[user] == currentEpoch) {
+            score += fundingBonus[user];
+        }
         return score;
     }
 
@@ -125,8 +153,12 @@ contract SocialReputation {
         totalPool += amount;
         totalShares += shares;
         userShares[msg.sender] += shares;
-        // add reputation points (normalize to 1e18 basis)
-        fundingPoints1e18[msg.sender] += amount * 1e18;
+        // Add flat reputation bonus per funding action (20 points)
+        if (fundingBonusEpoch[msg.sender] != currentEpoch) {
+            fundingBonus[msg.sender] = 0;
+            fundingBonusEpoch[msg.sender] = currentEpoch;
+        }
+        unchecked { fundingBonus[msg.sender] += 20; }
         emit PoolFunded(msg.sender, amount, shares);
     }
 
@@ -191,12 +223,19 @@ contract SocialReputation {
         emit Repaid(msg.sender, amount);
     }
 
+    // --- Admin controls ---
+    // Increment epoch to reset reputation scoring for all users
+    function resetAllReputation() external onlyAdmin {
+        unchecked { currentEpoch += 1; }
+    }
+
     // --- Endorsements ---
-    // Already one-per-endorser via hasEndorsed; allow self-endorse only once
+    // Already one-per-endorser per epoch; allow self-endorse once per epoch
     function selfEndorse() external {
+        _syncUserEpoch(msg.sender);
         Metrics storage m = userMetrics[msg.sender];
-        require(!m.hasEndorsed[msg.sender], "Already self-endorsed");
-        m.hasEndorsed[msg.sender] = true;
+        require(!m.hasEndorsed[currentEpoch][msg.sender], "Already self-endorsed");
+        m.hasEndorsed[currentEpoch][msg.sender] = true;
         unchecked { m.endorsements += 1; }
         emit Endorsed(msg.sender, msg.sender);
     }
