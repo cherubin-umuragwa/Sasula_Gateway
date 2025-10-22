@@ -30,12 +30,25 @@ export interface SavingsCirclesInterface extends Interface {
       | "createCircle"
       | "deposit"
       | "getCircle"
+      | "joinCircle"
       | "nextId"
       | "payout"
+      | "restart"
+      | "setOpenToJoin"
+      | "terminate"
+      | "totalCircles"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "CircleCreated" | "Deposited" | "Payout"
+    nameOrSignatureOrTopic:
+      | "CircleCreated"
+      | "CycleCompleted"
+      | "Deposited"
+      | "MemberJoined"
+      | "OpenToJoinSet"
+      | "Payout"
+      | "Restarted"
+      | "Terminated"
   ): EventFragment;
 
   encodeFunctionData(
@@ -54,10 +67,30 @@ export interface SavingsCirclesInterface extends Interface {
     functionFragment: "getCircle",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "joinCircle",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "nextId", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "payout",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "restart",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setOpenToJoin",
+    values: [BigNumberish, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "terminate",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalCircles",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "canPayout", data: BytesLike): Result;
@@ -67,8 +100,19 @@ export interface SavingsCirclesInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getCircle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "joinCircle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nextId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "payout", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "restart", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setOpenToJoin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "terminate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalCircles",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace CircleCreatedEvent {
@@ -102,6 +146,19 @@ export namespace CircleCreatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace CycleCompletedEvent {
+  export type InputTuple = [id: BigNumberish, completedRound: BigNumberish];
+  export type OutputTuple = [id: bigint, completedRound: bigint];
+  export interface OutputObject {
+    id: bigint;
+    completedRound: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace DepositedEvent {
   export type InputTuple = [
     id: BigNumberish,
@@ -127,6 +184,32 @@ export namespace DepositedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace MemberJoinedEvent {
+  export type InputTuple = [id: BigNumberish, newMember: AddressLike];
+  export type OutputTuple = [id: bigint, newMember: string];
+  export interface OutputObject {
+    id: bigint;
+    newMember: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OpenToJoinSetEvent {
+  export type InputTuple = [id: BigNumberish, open: boolean];
+  export type OutputTuple = [id: bigint, open: boolean];
+  export interface OutputObject {
+    id: bigint;
+    open: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace PayoutEvent {
   export type InputTuple = [
     id: BigNumberish,
@@ -145,6 +228,31 @@ export namespace PayoutEvent {
     round: bigint;
     recipient: string;
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace RestartedEvent {
+  export type InputTuple = [id: BigNumberish, nextPayoutTime: BigNumberish];
+  export type OutputTuple = [id: bigint, nextPayoutTime: bigint];
+  export interface OutputObject {
+    id: bigint;
+    nextPayoutTime: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace TerminatedEvent {
+  export type InputTuple = [id: BigNumberish];
+  export type OutputTuple = [id: bigint];
+  export interface OutputObject {
+    id: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -222,6 +330,7 @@ export interface SavingsCircles extends BaseContract {
         bigint,
         bigint,
         bigint,
+        boolean,
         boolean
       ] & {
         organizer: string;
@@ -233,14 +342,29 @@ export interface SavingsCircles extends BaseContract {
         nextPayoutTime: bigint;
         round: bigint;
         active: boolean;
+        openToJoin: boolean;
       }
     ],
     "view"
   >;
 
+  joinCircle: TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+
   nextId: TypedContractMethod<[], [bigint], "view">;
 
   payout: TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+
+  restart: TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+
+  setOpenToJoin: TypedContractMethod<
+    [id: BigNumberish, open: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  terminate: TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+
+  totalCircles: TypedContractMethod<[], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -278,6 +402,7 @@ export interface SavingsCircles extends BaseContract {
         bigint,
         bigint,
         bigint,
+        boolean,
         boolean
       ] & {
         organizer: string;
@@ -289,16 +414,36 @@ export interface SavingsCircles extends BaseContract {
         nextPayoutTime: bigint;
         round: bigint;
         active: boolean;
+        openToJoin: boolean;
       }
     ],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "joinCircle"
+  ): TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "nextId"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "payout"
   ): TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "restart"
+  ): TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setOpenToJoin"
+  ): TypedContractMethod<
+    [id: BigNumberish, open: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "terminate"
+  ): TypedContractMethod<[id: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "totalCircles"
+  ): TypedContractMethod<[], [bigint], "view">;
 
   getEvent(
     key: "CircleCreated"
@@ -308,6 +453,13 @@ export interface SavingsCircles extends BaseContract {
     CircleCreatedEvent.OutputObject
   >;
   getEvent(
+    key: "CycleCompleted"
+  ): TypedContractEvent<
+    CycleCompletedEvent.InputTuple,
+    CycleCompletedEvent.OutputTuple,
+    CycleCompletedEvent.OutputObject
+  >;
+  getEvent(
     key: "Deposited"
   ): TypedContractEvent<
     DepositedEvent.InputTuple,
@@ -315,11 +467,39 @@ export interface SavingsCircles extends BaseContract {
     DepositedEvent.OutputObject
   >;
   getEvent(
+    key: "MemberJoined"
+  ): TypedContractEvent<
+    MemberJoinedEvent.InputTuple,
+    MemberJoinedEvent.OutputTuple,
+    MemberJoinedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OpenToJoinSet"
+  ): TypedContractEvent<
+    OpenToJoinSetEvent.InputTuple,
+    OpenToJoinSetEvent.OutputTuple,
+    OpenToJoinSetEvent.OutputObject
+  >;
+  getEvent(
     key: "Payout"
   ): TypedContractEvent<
     PayoutEvent.InputTuple,
     PayoutEvent.OutputTuple,
     PayoutEvent.OutputObject
+  >;
+  getEvent(
+    key: "Restarted"
+  ): TypedContractEvent<
+    RestartedEvent.InputTuple,
+    RestartedEvent.OutputTuple,
+    RestartedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Terminated"
+  ): TypedContractEvent<
+    TerminatedEvent.InputTuple,
+    TerminatedEvent.OutputTuple,
+    TerminatedEvent.OutputObject
   >;
 
   filters: {
@@ -334,6 +514,17 @@ export interface SavingsCircles extends BaseContract {
       CircleCreatedEvent.OutputObject
     >;
 
+    "CycleCompleted(uint256,uint256)": TypedContractEvent<
+      CycleCompletedEvent.InputTuple,
+      CycleCompletedEvent.OutputTuple,
+      CycleCompletedEvent.OutputObject
+    >;
+    CycleCompleted: TypedContractEvent<
+      CycleCompletedEvent.InputTuple,
+      CycleCompletedEvent.OutputTuple,
+      CycleCompletedEvent.OutputObject
+    >;
+
     "Deposited(uint256,uint256,address,uint256)": TypedContractEvent<
       DepositedEvent.InputTuple,
       DepositedEvent.OutputTuple,
@@ -345,6 +536,28 @@ export interface SavingsCircles extends BaseContract {
       DepositedEvent.OutputObject
     >;
 
+    "MemberJoined(uint256,address)": TypedContractEvent<
+      MemberJoinedEvent.InputTuple,
+      MemberJoinedEvent.OutputTuple,
+      MemberJoinedEvent.OutputObject
+    >;
+    MemberJoined: TypedContractEvent<
+      MemberJoinedEvent.InputTuple,
+      MemberJoinedEvent.OutputTuple,
+      MemberJoinedEvent.OutputObject
+    >;
+
+    "OpenToJoinSet(uint256,bool)": TypedContractEvent<
+      OpenToJoinSetEvent.InputTuple,
+      OpenToJoinSetEvent.OutputTuple,
+      OpenToJoinSetEvent.OutputObject
+    >;
+    OpenToJoinSet: TypedContractEvent<
+      OpenToJoinSetEvent.InputTuple,
+      OpenToJoinSetEvent.OutputTuple,
+      OpenToJoinSetEvent.OutputObject
+    >;
+
     "Payout(uint256,uint256,address,uint256)": TypedContractEvent<
       PayoutEvent.InputTuple,
       PayoutEvent.OutputTuple,
@@ -354,6 +567,28 @@ export interface SavingsCircles extends BaseContract {
       PayoutEvent.InputTuple,
       PayoutEvent.OutputTuple,
       PayoutEvent.OutputObject
+    >;
+
+    "Restarted(uint256,uint256)": TypedContractEvent<
+      RestartedEvent.InputTuple,
+      RestartedEvent.OutputTuple,
+      RestartedEvent.OutputObject
+    >;
+    Restarted: TypedContractEvent<
+      RestartedEvent.InputTuple,
+      RestartedEvent.OutputTuple,
+      RestartedEvent.OutputObject
+    >;
+
+    "Terminated(uint256)": TypedContractEvent<
+      TerminatedEvent.InputTuple,
+      TerminatedEvent.OutputTuple,
+      TerminatedEvent.OutputObject
+    >;
+    Terminated: TypedContractEvent<
+      TerminatedEvent.InputTuple,
+      TerminatedEvent.OutputTuple,
+      TerminatedEvent.OutputObject
     >;
   };
 }
