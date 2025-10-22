@@ -31,14 +31,13 @@ export default function TopBar() {
               {/* Logo Section */}
               <div className="flex items-center gap-4 group">
                 <div className="relative">
-                    <Image
-                      src="/logo.png"
-                      alt="Logo"
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 object-contain"
-                    />
-                  </div>
+                  <Image
+                    src="/logo.png"
+                    alt="Logo"
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 object-contain"
+                  />
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                 </div>
 
