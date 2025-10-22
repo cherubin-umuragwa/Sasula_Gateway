@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import repAbi from "@/lib/abis/SocialReputation.json";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
-import { erc20Abi, parseEther, parseUnits, MaxUint256 } from "viem";
+import { erc20Abi, parseEther, parseUnits, MaxUint256, formatUnits } from "viem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faThumbsUp, faThumbsDown, faUserCheck, faUniversity, faCoins, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
@@ -208,7 +208,16 @@ function PoolSection({
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">
           <div className="flex justify-between items-center">
             <span className="text-white/70">Your Stake Value:</span>
-            <span className="text-white font-semibold">{stakeValue ? String(stakeValue) : "0"}</span>
+            <span className="text-white font-semibold">
+              {(() => {
+                try {
+                  const v = BigInt((stakeValue as any)?.toString?.() || "0");
+                  return formatUnits(v, decimals);
+                } catch {
+                  return "0";
+                }
+              })()}
+            </span>
           </div>
         </div>
 

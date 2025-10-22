@@ -29,8 +29,14 @@ describe("SocialReputation", function () {
     if (maxBorrow > 0n) {
       const borrowAmt = maxBorrow;
       await (await rep.connect(a).borrow(borrowAmt)).wait();
-      await (await token.connect(a).approve(await rep.getAddress(), borrowAmt)).wait();
-      await (await rep.connect(a).repay(borrowAmt)).wait();
+
+      // Repay full amount including interest (2%)
+      const interest = (borrowAmt * 200n) / 10000n;
+      const due = borrowAmt + interest;
+      // Fund borrower with interest top-up to cover due
+      await (await token.transfer(a.address, interest)).wait();
+      await (await token.connect(a).approve(await rep.getAddress(), due)).wait();
+      await (await rep.connect(a).repay(due)).wait();
     }
   });
 });
